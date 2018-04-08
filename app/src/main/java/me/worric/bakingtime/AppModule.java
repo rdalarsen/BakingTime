@@ -11,6 +11,7 @@ import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
 import me.worric.bakingtime.data.network.BakingWebService;
+import me.worric.bakingtime.data.repository.RepositoryModule;
 import me.worric.bakingtime.di.ActivityScope;
 import me.worric.bakingtime.di.AppContext;
 import me.worric.bakingtime.ui.main.MainActivity;
@@ -20,7 +21,7 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@Module(includes = AndroidSupportInjectionModule.class)
+@Module(includes = {AndroidSupportInjectionModule.class, RepositoryModule.class})
 public abstract class AppModule {
 
     @Binds

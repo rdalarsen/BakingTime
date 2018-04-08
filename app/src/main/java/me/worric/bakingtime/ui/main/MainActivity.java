@@ -1,10 +1,13 @@
 package me.worric.bakingtime.ui.main;
 
+import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -17,8 +20,10 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.rv_recipe_list) protected RecyclerView mRecipeList;
 
-    private RecipeAdapter mAdapter;
+    @Inject
+    protected ViewModelProvider.Factory mViewModelFactory;
     private BakingViewModel mViewModel;
+    private RecipeAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupViewModel() {
-        mViewModel = ViewModelProviders.of(this).get(BakingViewModel.class);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(BakingViewModel.class);
         mViewModel.getRecipes().observe(this, recipes -> {
             Timber.e("Recipes %s", recipes == null ? "NULL" : "NOT NULL");
         });

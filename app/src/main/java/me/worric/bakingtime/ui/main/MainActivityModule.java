@@ -6,8 +6,9 @@ import dagger.Binds;
 import dagger.Module;
 import me.worric.bakingtime.di.ActivityContext;
 import me.worric.bakingtime.di.ActivityScope;
+import me.worric.bakingtime.ui.viewmodels.ViewModelModule;
 
-@Module
+@Module(includes = ViewModelModule.class)
 public abstract class MainActivityModule {
 
     @Binds

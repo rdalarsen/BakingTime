@@ -11,16 +11,19 @@ import java.util.List;
 import javax.inject.Inject;
 
 import me.worric.bakingtime.data.models.Recipe;
+import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.di.ActivityScope;
 
 @ActivityScope
 public class BakingViewModel extends ViewModel {
 
     private final MutableLiveData<Recipe> mChosenRecipe;
+    private final Repository<Recipe> mRecipeRepository;
 
     @Inject
-    public BakingViewModel() {
+    public BakingViewModel(Repository<Recipe> recipeRepository) {
         mChosenRecipe = new MutableLiveData<>();
+        mRecipeRepository = recipeRepository;
     }
 
     public LiveData<List<Recipe>> getRecipes() {
