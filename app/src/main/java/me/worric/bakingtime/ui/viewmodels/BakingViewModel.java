@@ -2,10 +2,8 @@ package me.worric.bakingtime.ui.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -27,8 +25,7 @@ public class BakingViewModel extends ViewModel {
     }
 
     public LiveData<List<Recipe>> getRecipes() {
-        // TODO dummy return value
-        return Transformations.map(mChosenRecipe, Arrays::asList);
+        return mRecipeRepository.getDataList();
     }
 
     public void setChosenRecipe(Recipe recipe) {
