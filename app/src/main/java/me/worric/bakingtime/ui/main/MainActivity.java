@@ -2,6 +2,7 @@ package me.worric.bakingtime.ui.main;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +14,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
 import me.worric.bakingtime.R;
+import me.worric.bakingtime.data.db.models.RecipeView;
+import me.worric.bakingtime.ui.detail.DetailActivity;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
@@ -21,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.rv_recipe_list) protected RecyclerView mRecipeList;
 
     @Inject
-    protected ViewModelProvider.Factory mViewModelFactory;
+    protected ViewModelProvider.Factory mFactory;
     private BakingViewModel mViewModel;
     private RecipeAdapter mAdapter;
 
@@ -38,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupViewModel() {
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(BakingViewModel.class);
+        mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
         mViewModel.getRecipes().observe(this, recipesViews -> {
             Timber.e("Recipes %s", recipesViews == null ? "NULL" : "NOT NULL");
             mAdapter.swapData(recipesViews);
@@ -49,7 +52,10 @@ public class MainActivity extends AppCompatActivity {
         mRecipeList.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
 
-        mAdapter = new RecipeAdapter();
+        mAdapter = new RecipeAdapter(recipeView -> {
+            Intent intent = DetailActivity.newIntent(this, recipeView.mRecipe.getId());
+            startActivity(intent);
+        });
         mRecipeList.setAdapter(mAdapter);
     }
 

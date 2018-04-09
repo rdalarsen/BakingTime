@@ -14,6 +14,8 @@ import me.worric.bakingtime.data.network.BakingWebService;
 import me.worric.bakingtime.data.repository.RepositoryModule;
 import me.worric.bakingtime.di.ActivityScope;
 import me.worric.bakingtime.di.AppContext;
+import me.worric.bakingtime.ui.detail.DetailActivity;
+import me.worric.bakingtime.ui.detail.DetailActivityModule;
 import me.worric.bakingtime.ui.main.MainActivity;
 import me.worric.bakingtime.ui.main.MainActivityModule;
 import me.worric.bakingtime.ui.util.NetUtils;
@@ -43,5 +45,9 @@ public abstract class AppModule {
     @ActivityScope
     @ContributesAndroidInjector(modules = MainActivityModule.class)
     abstract MainActivity contributesMainActivity();
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = DetailActivityModule.class)
+    abstract DetailActivity contributesDetailActivity();
 
 }

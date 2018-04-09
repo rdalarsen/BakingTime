@@ -39,8 +39,13 @@ public class RecipeRepository implements Repository<RecipeView>, Callback<List<R
     }
 
     @Override
-    public LiveData<List<RecipeView>> getDataList() {
+    public LiveData<List<RecipeView>> findAll() {
         return mAppDatabase.recipeViewDao().findAll();
+    }
+
+    @Override
+    public LiveData<RecipeView> findOneById(Long id) {
+        return mAppDatabase.recipeViewDao().findOneById(id);
     }
 
     private void loadData() {

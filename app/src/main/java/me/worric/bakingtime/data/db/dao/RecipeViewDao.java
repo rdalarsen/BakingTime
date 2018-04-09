@@ -16,4 +16,7 @@ public interface RecipeViewDao {
     @Transaction
     LiveData<List<RecipeView>> findAll();
 
+    @Query("SELECT * FROM recipes WHERE id IS :id")
+    LiveData<RecipeView> findOneById(Long id);
+
 }

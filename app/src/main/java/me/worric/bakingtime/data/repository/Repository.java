@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface Repository<T> {
 
-    LiveData<List<T>> getDataList();
+    LiveData<List<T>> findAll();
+
+    LiveData<T> findOneById(Long id);
 
 }

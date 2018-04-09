@@ -17,8 +17,11 @@ import me.worric.bakingtime.data.db.models.RecipeView;
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHolder> {
 
     private List<RecipeView> mRecipes;
+    private RecipeClickListener mListener;
 
-    public RecipeAdapter() {}
+    public RecipeAdapter(@NonNull RecipeClickListener listener) {
+        mListener = listener;
+    }
 
     public void swapData(List<RecipeView> recipes) {
         mRecipes = recipes;
@@ -38,6 +41,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
         //String titleText = "Position: " + position + ", holderHash: " + holder.hashCode();
         RecipeView recipeView = mRecipes.get(position);
         holder.title.setText(recipeView.mRecipe.getName());
+        holder.itemView.setOnClickListener(v -> mListener.onRecipeClicked(recipeView));
     }
 
     @Override
@@ -54,6 +58,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
+    }
+
+    public interface RecipeClickListener {
+        void onRecipeClicked(RecipeView recipeView);
     }
 
 }
