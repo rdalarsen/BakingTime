@@ -20,4 +20,7 @@ public abstract class DetailActivityModule {
     @ContributesAndroidInjector
     abstract MasterFragment contributeMasterFragment();
 
+    @ContributesAndroidInjector
+    abstract DetailFragment contributeDetailFragment();
+
 }
