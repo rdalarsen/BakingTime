@@ -12,10 +12,11 @@ import me.worric.bakingtime.data.db.models.RecipeView;
 @Dao
 public interface RecipeViewDao {
 
-    @Query("SELECT * FROM recipes")
     @Transaction
+    @Query("SELECT * FROM recipes")
     LiveData<List<RecipeView>> findAll();
 
+    @Transaction
     @Query("SELECT * FROM recipes WHERE id IS :id")
     LiveData<RecipeView> findOneById(Long id);
 
