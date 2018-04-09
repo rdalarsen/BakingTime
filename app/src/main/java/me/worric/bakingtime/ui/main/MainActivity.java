@@ -39,8 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(BakingViewModel.class);
-        mViewModel.getRecipes().observe(this, recipes -> {
-            Timber.e("Recipes %s", recipes == null ? "NULL" : "NOT NULL");
+        mViewModel.getRecipes().observe(this, recipesViews -> {
+            Timber.e("Recipes %s", recipesViews == null ? "NULL" : "NOT NULL");
+            mAdapter.swapData(recipesViews);
         });
     }
 

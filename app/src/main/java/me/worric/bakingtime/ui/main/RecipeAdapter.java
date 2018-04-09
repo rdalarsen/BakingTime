@@ -7,11 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.worric.bakingtime.R;
+import me.worric.bakingtime.data.db.models.RecipeView;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHolder> {
+
+    private List<RecipeView> mRecipes;
+
+    public RecipeAdapter() {}
+
+    public void swapData(List<RecipeView> recipes) {
+        mRecipes = recipes;
+        notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
@@ -23,13 +35,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
 
     @Override
     public void onBindViewHolder(@NonNull RecipeHolder holder, int position) {
-        String titleText = "Position: " + position + ", holderHash: " + holder.hashCode();
-        holder.title.setText(titleText);
+        //String titleText = "Position: " + position + ", holderHash: " + holder.hashCode();
+        RecipeView recipeView = mRecipes.get(position);
+        holder.title.setText(recipeView.mRecipe.getName());
     }
 
     @Override
     public int getItemCount() {
-        return 10;
+        return mRecipes != null ? mRecipes.size() : 0;
     }
 
     static class RecipeHolder extends RecyclerView.ViewHolder {

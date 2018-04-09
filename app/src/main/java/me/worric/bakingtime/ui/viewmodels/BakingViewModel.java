@@ -8,27 +8,27 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import me.worric.bakingtime.data.models.Recipe;
+import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.di.ActivityScope;
 
 @ActivityScope
 public class BakingViewModel extends ViewModel {
 
-    private final MutableLiveData<Recipe> mChosenRecipe;
-    private final Repository<Recipe> mRecipeRepository;
+    private final MutableLiveData<RecipeView> mChosenRecipe;
+    private final Repository<RecipeView> mRecipeRepository;
 
     @Inject
-    public BakingViewModel(Repository<Recipe> recipeRepository) {
+    public BakingViewModel(Repository<RecipeView> recipeRepository) {
         mChosenRecipe = new MutableLiveData<>();
         mRecipeRepository = recipeRepository;
     }
 
-    public LiveData<List<Recipe>> getRecipes() {
+    public LiveData<List<RecipeView>> getRecipes() {
         return mRecipeRepository.getDataList();
     }
 
-    public void setChosenRecipe(Recipe recipe) {
-        mChosenRecipe.setValue(recipe);
+    public void setChosenRecipe(RecipeView recipeView) {
+        mChosenRecipe.setValue(recipeView);
     }
 }
