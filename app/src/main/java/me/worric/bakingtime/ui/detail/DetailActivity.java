@@ -53,6 +53,7 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         if (savedInstanceState == null && !mTabletMode) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detail_fragment_container, new MasterFragment())
+                    .addToBackStack(null)
                     .commit();
         }
     }
@@ -69,7 +70,7 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
     }
 
     @Override
-    public void onStepClick(Step step) {
+    public void onStepClick(Step step, int position) {
         if (!mTabletMode) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_fragment_container, new DetailFragment())

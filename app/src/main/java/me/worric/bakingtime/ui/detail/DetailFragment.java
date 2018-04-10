@@ -13,13 +13,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import me.worric.bakingtime.R;
-import me.worric.bakingtime.ui.GlideApp;
+import me.worric.bakingtime.data.db.models.RecipeView;
+import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
@@ -33,6 +36,7 @@ public class DetailFragment extends Fragment {
     protected ViewModelProvider.Factory mFactory;
     private BakingViewModel mViewModel;
     private Unbinder mUnbinder;
+    private List<Step> mSteps;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,13 +50,24 @@ public class DetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
-        mViewModel.getChosenStep().observe(this, step -> {
+        /*mViewModel.getChosenRecipe().observe(this, recipeView -> {
+            mSteps = recipeView.mSteps;
+            int position = mViewModel.getStepPosition().getValue();
+            Timber.d("The ID of the chosen recipe is: %d", mSteps.get(position).getId());
+        });*/
+        mViewModel.getStepPosition().observe(this, integer -> {
+            RecipeView recipeView = mViewModel.getChosenRecipe().getValue();
+            Timber.d("recipeView is: %s", recipeView == null ? "NULL" : "NOT NULL");
+            //List<Step> steps = mViewModel.getChosenRecipe().getValue();
+            //Timber.d("ID of the Step is: %d", step.getId());
+        });
+       /* mViewModel.getChosenStep().observe(this, step -> {
             mInstructions.setText(step.getDescription());
             GlideApp.with(getContext())
                     .load(R.drawable.ic_launcher_foreground)
                     .fitCenter()
                     .into(mExoplayer);
-        });
+        });*/
     }
 
     @Override

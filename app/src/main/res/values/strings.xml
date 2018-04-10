@@ -5,4 +5,11 @@
         of the boiling water and continue whisking the egg white mixture until it feels hot to the
         touch and the sugar is totally dissolved (if you have a reliable thermometer, it should
         read 150\u00b0F). </string>
+
+    <string name="list_item_step_num">Step %d</string>
+
+    <plurals name="list_item_servings">
+        <item quantity="one">Serving: %d</item>
+        <item quantity="other">Servings: %d</item>
+    </plurals>
 </resources>

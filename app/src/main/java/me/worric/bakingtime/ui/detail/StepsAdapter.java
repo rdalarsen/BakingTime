@@ -1,5 +1,6 @@
 package me.worric.bakingtime.ui.detail;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -41,13 +42,15 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
     @Override
     public void onBindViewHolder(@NonNull StepsViewHolder holder, int position) {
         final Step step = mSteps.get(position);
+        Context context = holder.itemView.getContext();
+
+        String stepString = context.getString(R.string.list_item_step_num, step.getId());
+        holder.mStepNumber.setText(stepString);
         holder.mShortDesc.setText(step.getShortDescription());
-        String stepText = "Step " + position;
-        holder.mStepNumber.setText(stepText);
         GlideApp.with(holder.itemView.getContext())
                 .load(step.getThumbnailURL())
                 .into(holder.mThumbnail);
-        holder.itemView.setOnClickListener(v -> mListener.onStepClick(step));
+        holder.itemView.setOnClickListener(v -> mListener.onStepClick(step, position));
     }
 
     @Override

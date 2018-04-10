@@ -91,9 +91,10 @@ public class MasterFragment extends Fragment {
         mStepsList.addItemDecoration(new DividerItemDecoration(getContext(),
                 DividerItemDecoration.VERTICAL));
 
-        mAdapter = new StepsAdapter(step -> {
+        mAdapter = new StepsAdapter((step, position) -> {
             mViewModel.setChosenStep(step);
-            mListener.onStepClick(step);
+            mViewModel.setStepPosition(position);
+            mListener.onStepClick(step, position);
         });
         mStepsList.setAdapter(mAdapter);
     }
@@ -125,7 +126,7 @@ public class MasterFragment extends Fragment {
     }
 
     public interface StepClickListener {
-        void onStepClick(Step step);
+        void onStepClick(Step step, int position);
     }
 
 }

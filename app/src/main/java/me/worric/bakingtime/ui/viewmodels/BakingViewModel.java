@@ -20,12 +20,14 @@ public class BakingViewModel extends ViewModel {
     private final MutableLiveData<Long> mRecipeId;
     private final MutableLiveData<Step> mChosenStep;
     private final Repository<RecipeView> mRecipeRepository;
+    private final MutableLiveData<Integer> mStepPosition;
 
     @Inject
     public BakingViewModel(Repository<RecipeView> recipeRepository) {
         mRecipeId = new MutableLiveData<>();
         mChosenStep = new MutableLiveData<>();
         mRecipeRepository = recipeRepository;
+        mStepPosition = new MutableLiveData<>();
     }
 
     public LiveData<List<RecipeView>> getRecipes() {
@@ -35,6 +37,14 @@ public class BakingViewModel extends ViewModel {
     public LiveData<RecipeView> getChosenRecipe() {
         return Transformations.switchMap(mRecipeId,
                 recipeId -> mRecipeRepository.findOneById(recipeId));
+    }
+
+    public LiveData<Integer> getStepPosition() {
+        return mStepPosition;
+    }
+
+    public void setStepPosition(int stepPosition) {
+        mStepPosition.setValue(stepPosition);
     }
 
     public void setChosenRecipe(Long recipeId) {

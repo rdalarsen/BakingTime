@@ -1,10 +1,12 @@
 package me.worric.bakingtime.ui.main;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.db.models.RecipeView;
+import me.worric.bakingtime.ui.GlideApp;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHolder> {
 
@@ -38,9 +41,18 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
 
     @Override
     public void onBindViewHolder(@NonNull RecipeHolder holder, int position) {
-        //String titleText = "Position: " + position + ", holderHash: " + holder.hashCode();
         RecipeView recipeView = mRecipes.get(position);
+        Context context = holder.itemView.getContext();
+
+        long numServings = recipeView.mRecipe.getServings();
+        String servingsString = context.getResources()
+                .getQuantityString(R.plurals.list_item_servings, (int) numServings, numServings);
         holder.title.setText(recipeView.mRecipe.getName());
+        holder.servings.setText(servingsString);
+        GlideApp.with(context)
+                .load(recipeView.mRecipe.getImage())
+                .fitCenter()
+                .into(holder.header);
         holder.itemView.setOnClickListener(v -> mListener.onRecipeClicked(recipeView));
     }
 
@@ -51,8 +63,12 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
 
     static class RecipeHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.list_item_recipe_header)
+        ImageView header;
         @BindView(R.id.list_item_recipe_title)
         TextView title;
+        @BindView(R.id.list_item_servings)
+        TextView servings;
 
         RecipeHolder(View itemView) {
             super(itemView);
