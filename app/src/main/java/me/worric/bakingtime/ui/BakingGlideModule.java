@@ -9,6 +9,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.module.AppGlideModule;
 import com.bumptech.glide.request.RequestOptions;
 
+import me.worric.bakingtime.R;
+
 @GlideModule
 public class BakingGlideModule extends AppGlideModule {
 
@@ -17,6 +19,7 @@ public class BakingGlideModule extends AppGlideModule {
         builder.setDefaultRequestOptions(
                 new RequestOptions()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .error(R.drawable.ic_launcher_foreground)
         );
     }
 
