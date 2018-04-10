@@ -20,9 +20,11 @@ import timber.log.Timber;
 
 public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHolder> {
 
+    private MasterFragment.StepClickListener mListener;
     private List<Step> mSteps;
 
-    public StepsAdapter() {
+    public StepsAdapter(MasterFragment.StepClickListener listener) {
+        mListener = listener;
     }
 
     public void swapSteps(List<Step> steps) {
@@ -53,13 +55,14 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
     public void onBindViewHolder(@NonNull StepsViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case 0:
-                Step step = mSteps.get(position);
+                final Step step = mSteps.get(position);
                 holder.mShortDesc.setText(step.getShortDescription());
                 String stepText = "Step " + position;
                 holder.mStepNumber.setText(stepText);
                 GlideApp.with(holder.itemView.getContext())
                         .load(step.getThumbnailURL())
                         .into(holder.mThumbnail);
+                holder.itemView.setOnClickListener(v -> mListener.onStepClick(step));
                 break;
             case 1:
                 holder.itemView.setOnClickListener(v -> Timber.d("Ingredients clicked"));

@@ -43,8 +43,8 @@ public class DetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
-        mViewModel.getChosenRecipe().observe(this, recipeView -> {
-            Timber.d("Recipe id: %d", recipeView.mRecipe.getId());
+        mViewModel.getChosenStep().observe(this, step -> {
+            Timber.d("Step description is: %s", step.getShortDescription());
         });
     }
 

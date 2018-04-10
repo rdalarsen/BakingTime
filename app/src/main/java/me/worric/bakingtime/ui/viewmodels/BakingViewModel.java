@@ -10,6 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import me.worric.bakingtime.data.db.models.RecipeView;
+import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.di.ActivityScope;
 
@@ -17,11 +18,13 @@ import me.worric.bakingtime.di.ActivityScope;
 public class BakingViewModel extends ViewModel {
 
     private final MutableLiveData<Long> mRecipeId;
+    private final MutableLiveData<Step> mChosenStep;
     private final Repository<RecipeView> mRecipeRepository;
 
     @Inject
     public BakingViewModel(Repository<RecipeView> recipeRepository) {
         mRecipeId = new MutableLiveData<>();
+        mChosenStep = new MutableLiveData<>();
         mRecipeRepository = recipeRepository;
     }
 
@@ -42,4 +45,11 @@ public class BakingViewModel extends ViewModel {
         setChosenRecipe(recipeView.mRecipe.getId());
     }
 
+    public void setChosenStep(Step step) {
+        mChosenStep.setValue(step);
+    }
+
+    public LiveData<Step> getChosenStep() {
+        return mChosenStep;
+    }
 }

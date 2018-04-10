@@ -22,10 +22,13 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
+import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
 public class MasterFragment extends Fragment {
+
+    private static final String EXTRA_LAYOUT_MANAGER_STATE = "me.worric.bakingtime.extra_layout_manager_state";
 
     private Unbinder mUnbinder;
 
@@ -36,6 +39,7 @@ public class MasterFragment extends Fragment {
     private BakingViewModel mViewModel;
     private StepsAdapter mAdapter;
     private LinearLayoutManager mManager;
+    private StepClickListener mListener;
 
     public MasterFragment() {
         // Required empty public constructor
@@ -45,6 +49,12 @@ public class MasterFragment extends Fragment {
     public void onAttach(Context context) {
         AndroidSupportInjection.inject(this);
         super.onAttach(context);
+        try {
+            mListener = (StepClickListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement StepClickListener");
+        }
     }
 
     @Override
@@ -81,7 +91,10 @@ public class MasterFragment extends Fragment {
         mStepsList.addItemDecoration(new DividerItemDecoration(getContext(),
                 DividerItemDecoration.VERTICAL));
 
-        mAdapter = new StepsAdapter();
+        mAdapter = new StepsAdapter(step -> {
+            mViewModel.setChosenStep(step);
+            mListener.onStepClick(step);
+        });
         mStepsList.setAdapter(mAdapter);
     }
 
@@ -99,16 +112,20 @@ public class MasterFragment extends Fragment {
 
     private void saveLayoutManagerState(final Bundle outState) {
         Parcelable savedLayoutManagerState = mManager.onSaveInstanceState();
-        Timber.d("on SAVE: Parcelable is: %s", savedLayoutManagerState == null ? "NULL" : "NOT NULL");
-        outState.putParcelable("kaffe", savedLayoutManagerState);
-//        mViewModel.setLayoutManagerState(savedLayoutManagerState);
+        Timber.d("on SAVE: Parcelable is: %s",
+                savedLayoutManagerState == null ? "NULL" : "NOT NULL");
+        outState.putParcelable(EXTRA_LAYOUT_MANAGER_STATE, savedLayoutManagerState);
     }
 
     private void restoreLayoutManagerState(final Bundle savedInstanceState) {
-//        Parcelable savedLayoutManagerState = mViewModel.getLayoutManagerState().getValue();
         if (savedInstanceState == null) return;
-        Parcelable savedLayoutManagerState = savedInstanceState.getParcelable("kaffe");
+        Parcelable savedLayoutManagerState = savedInstanceState
+                .getParcelable(EXTRA_LAYOUT_MANAGER_STATE);
         mManager.onRestoreInstanceState(savedLayoutManagerState);
+    }
+
+    public interface StepClickListener {
+        void onStepClick(Step step);
     }
 
 }

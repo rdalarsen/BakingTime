@@ -17,10 +17,12 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import me.worric.bakingtime.R;
+import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
-public class DetailActivity extends AppCompatActivity implements HasSupportFragmentInjector {
+public class DetailActivity extends AppCompatActivity implements HasSupportFragmentInjector,
+        MasterFragment.StepClickListener {
 
     private static final String EXTRA_RECIPE_ID = "me.worric.bakingtime.extra_recipe_id";
 
@@ -29,6 +31,8 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
 
     @Inject
     DispatchingAndroidInjector<Fragment> fragmentInjector;
+
+    private boolean mTabletMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +46,11 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
                 .get(BakingViewModel.class);
         mViewModel.setChosenRecipe(recipeId);
 
-        final boolean twoPaneMode = getResources().getBoolean(R.bool.tablet_mode);
+        mTabletMode = getResources().getBoolean(R.bool.tablet_mode);
 
-        Timber.d("TwoPaneMode? %s", twoPaneMode ? "YES" : "NO");
+        Timber.d("TwoPaneMode? %s", mTabletMode ? "YES" : "NO");
 
-        if (savedInstanceState == null && !twoPaneMode) {
+        if (savedInstanceState == null && !mTabletMode) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detail_fragment_container, new MasterFragment())
                     .commit();
@@ -64,4 +68,13 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         return intent;
     }
 
+    @Override
+    public void onStepClick(Step step) {
+        if (!mTabletMode) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.detail_fragment_container, new DetailFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
 }
