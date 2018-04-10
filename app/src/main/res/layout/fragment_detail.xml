@@ -15,8 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/tv_detail_step_instructions"
-        app:layout_constraintVertical_weight="1"
+        app:layout_constraintDimensionRatio="h,16:9"
         android:background="@color/colorPrimary"
         tools:src="@tools:sample/backgrounds/scenic"
         tools:scaleType="centerCrop" />
@@ -24,18 +23,17 @@
     <TextView
         android:id="@+id/tv_detail_step_instructions"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_height="wrap_content"
         android:padding="8dp"
         app:layout_constraintTop_toBottomOf="@+id/detail_exoplayer"
         app:layout_constraintStart_toStartOf="@+id/detail_exoplayer"
         app:layout_constraintEnd_toEndOf="@+id/detail_exoplayer"
         app:layout_constraintBottom_toTopOf="@+id/btn_detail_next_previous"
-        app:layout_constraintVertical_weight="1.25"
-        android:background="@color/colorPrimaryDark"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
-        tools:text="@tools:sample/lorem/random" />
+        app:layout_constraintVertical_bias="0.35"
+        android:textAlignment="center"
+        android:textStyle="italic"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        tools:text="@string/longest_instruction" />
 
     <Button
         android:id="@+id/btn_detail_next_previous"

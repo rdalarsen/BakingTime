@@ -24,17 +24,15 @@
         android:id="@+id/tv_detail_step_instructions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-black"
-        android:paddingEnd="32dp"
-        android:paddingStart="32dp"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
-        android:textStyle="italic"
-        android:background="@color/colorPrimary"
+        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/detail_exoplayer"
         app:layout_constraintStart_toStartOf="@+id/detail_exoplayer"
         app:layout_constraintTop_toBottomOf="@+id/detail_exoplayer"
-        tools:text="@tools:sample/lorem/random" />
+        app:layout_constraintVertical_bias="0.35"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="italic"
+        tools:text="@string/longest_instruction" />
 
 </android.support.constraint.ConstraintLayout>

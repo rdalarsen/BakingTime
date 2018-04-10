@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Baking Time</string>
+    <string name="longest_instruction">9. Whisk together the egg whites and remaining 300 grams
+        (1.5 cups) of sugar in the bowl of a stand mixer until combined. Set the bowl over the top
+        of the boiling water and continue whisking the egg white mixture until it feels hot to the
+        touch and the sugar is totally dissolved (if you have a reliable thermometer, it should
+        read 150\u00b0F). </string>
 </resources>
