@@ -5,7 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import javax.inject.Inject;
@@ -14,8 +14,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
 import me.worric.bakingtime.R;
-import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.ui.detail.DetailActivity;
+import me.worric.bakingtime.ui.util.UiUtils;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        mRecipeList.setLayoutManager(new LinearLayoutManager(this,
-                LinearLayoutManager.VERTICAL, false));
+        mRecipeList.setLayoutManager(new GridLayoutManager(this,
+                UiUtils.calculateSpanCount(this)));
 
         mAdapter = new RecipeAdapter(recipeView -> {
             Intent intent = DetailActivity.newIntent(this, recipeView.mRecipe.getId());
