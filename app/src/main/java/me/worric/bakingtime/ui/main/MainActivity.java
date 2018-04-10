@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import javax.inject.Inject;
@@ -49,8 +50,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        mRecipeList.setLayoutManager(new GridLayoutManager(this,
-                UiUtils.calculateSpanCount(this)));
+        final boolean tabletMode = getResources().getBoolean(R.bool.tablet_mode);
+        if (tabletMode) {
+            mRecipeList.setLayoutManager(new GridLayoutManager(this,
+                    UiUtils.calculateSpanCount(this)));
+        } else {
+            mRecipeList.setLayoutManager(new LinearLayoutManager(this,
+                    LinearLayoutManager.VERTICAL, false));
+        }
 
         mAdapter = new RecipeAdapter(recipeView -> {
             Intent intent = DetailActivity.newIntent(this, recipeView.mRecipe.getId());

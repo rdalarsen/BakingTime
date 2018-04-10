@@ -42,7 +42,7 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
                 .get(BakingViewModel.class);
         mViewModel.setChosenRecipe(recipeId);
 
-        final boolean twoPaneMode = getResources().getBoolean(R.bool.two_pane_mode);
+        final boolean twoPaneMode = getResources().getBoolean(R.bool.tablet_mode);
 
         Timber.d("TwoPaneMode? %s", twoPaneMode ? "YES" : "NO");
 
