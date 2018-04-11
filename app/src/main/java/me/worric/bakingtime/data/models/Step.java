@@ -104,4 +104,20 @@ public class Step {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Step step = (Step) o;
+
+        if (!mId.equals(step.mId)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return mId.hashCode();
+    }
 }

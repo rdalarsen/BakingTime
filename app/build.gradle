@@ -59,6 +59,10 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.15'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
 
+    // ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.7.3'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.7.3'
+
     // Annotation for use with Json2pojo plugin
     implementation 'javax.annotation:jsr250-api:1.0'
 
