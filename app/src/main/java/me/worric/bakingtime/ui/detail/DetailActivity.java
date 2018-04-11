@@ -71,10 +71,13 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
     @Override
     public void onStepClick(Step step) {
         if (!mTabletMode) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.detail_fragment_container, new DetailFragment())
-                    .addToBackStack(null)
-                    .commit();
+            Fragment detailFragment = getSupportFragmentManager().findFragmentByTag("kaffe");
+            if (detailFragment == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.detail_fragment_container, new DetailFragment(), "kaffe")
+                        .addToBackStack(null)
+                        .commit();
+            }
         }
     }
 }

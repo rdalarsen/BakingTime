@@ -8,7 +8,7 @@
     android:padding="8dp"
     tools:context=".ui.detail.DetailFragment">
 
-    <ImageView
+    <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/detail_exoplayer"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -16,9 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/colorPrimary"
-        app:layout_constraintDimensionRatio="h,4:3"
-        tools:src="@tools:sample/backgrounds/scenic"
-        tools:scaleType="centerCrop" />
+        app:layout_constraintDimensionRatio="h,4:3" />
 
     <TextView
         android:id="@+id/tv_detail_step_instructions"
