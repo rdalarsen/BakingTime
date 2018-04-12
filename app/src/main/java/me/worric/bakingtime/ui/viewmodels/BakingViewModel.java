@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.data.models.Step;
+import me.worric.bakingtime.data.models.StepAndSteps;
 import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.di.ActivityScope;
 import timber.log.Timber;
@@ -22,8 +23,6 @@ public class BakingViewModel extends ViewModel {
     private final MutableLiveData<Long> mRecipeId;
     private final MutableLiveData<Step> mChosenStep;
     private final Repository<RecipeView> mRecipeRepository;
-
-    // private final LiveData<RecipeView> mActiveRecipe;
     private final MediatorLiveData<RecipeView> mActiveRecipeMediator;
 
     @Inject
@@ -33,18 +32,12 @@ public class BakingViewModel extends ViewModel {
         mRecipeRepository = recipeRepository;
         mActiveRecipeMediator = new MediatorLiveData<>();
         mActiveRecipeMediator.addSource(
-                Transformations.switchMap(mRecipeId,
-                        recipeId -> mRecipeRepository.findOneById(recipeId)),
+                Transformations.switchMap(mRecipeId, mRecipeRepository::findOneById),
                 recipeView -> {
                     Timber.d("Observation updated. Id of activeRecipe: %d", recipeView.mRecipe.getId());
                     mActiveRecipeMediator.setValue(recipeView);
                 }
         );
-        /*mActiveRecipe = Transformations.switchMap(mRecipeId,
-                recipeId -> mRecipeRepository.findOneById(recipeId));
-        mActiveRecipe.observeForever(recipeView -> {
-            Timber.d("Observation updated. Id of activeRecipe: %d", recipeView.mRecipe.getId());
-        });*/
     }
 
     public LiveData<List<RecipeView>> getRecipes() {
@@ -53,19 +46,13 @@ public class BakingViewModel extends ViewModel {
 
     public LiveData<RecipeView> getChosenRecipe() {
         return mActiveRecipeMediator;
-                //Transformations.switchMap(mRecipeId,
-                //recipeId -> mRecipeRepository.findOneById(recipeId));
     }
 
     public void setChosenRecipe(Long recipeId) {
-        mRecipeId.setValue(recipeId);
+        if (mRecipeId.getValue() == null) mRecipeId.setValue(recipeId);
     }
 
-    public void setChosenRecipe(RecipeView recipeView) {
-        setChosenRecipe(recipeView.mRecipe.getId());
-    }
-
-    public void getNext() {
+    public void goToNextStep() {
         RecipeView recipeView = mActiveRecipeMediator.getValue();
         Step chosenStep = mChosenStep.getValue();
         if (recipeView != null && recipeView.mSteps != null && chosenStep != null) {
@@ -76,11 +63,34 @@ public class BakingViewModel extends ViewModel {
         }
     }
 
+    public void goToPreviousStep() {
+        RecipeView recipeView = mActiveRecipeMediator.getValue();
+        Step chosenStep = mChosenStep.getValue();
+        if (recipeView != null && recipeView.mSteps != null && chosenStep != null) {
+            int index = recipeView.mSteps.indexOf(chosenStep);
+            if (index > 0) {
+                mChosenStep.setValue(recipeView.mSteps.get(index - 1));
+            }
+        }
+    }
+
     public void setChosenStep(Step step) {
         mChosenStep.setValue(step);
     }
 
     public LiveData<Step> getChosenStep() {
         return mChosenStep;
+    }
+
+    public LiveData<StepAndSteps> getStepAndSteps() {
+        return Transformations.map(
+                mActiveRecipeMediator, recipeView ->
+                        StepAndSteps.newInstance(mChosenStep.getValue(), recipeView.mSteps));
+    }
+
+    public LiveData<StepAndSteps> getMoreSteps() {
+        return Transformations.switchMap(mChosenStep, (Step step) ->
+                Transformations.map(mActiveRecipeMediator, (RecipeView recepe) ->
+                        StepAndSteps.newInstance(step, recepe.mSteps)));
     }
 }

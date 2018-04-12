@@ -34,6 +34,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Optional;
 import butterknife.Unbinder;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
@@ -50,6 +51,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     private BakingViewModel mViewModel;
     private Unbinder mUnbinder;
     private SimpleExoPlayer mExoPlayer;
+    private boolean mHasVideoChanged = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,34 +61,71 @@ public class DetailFragment extends Fragment implements Player.EventListener {
         return v;
     }
 
-    @OnClick(R.id.btn_detail_next_previous)
+    @Optional
+    @OnClick(R.id.btn_detail_next)
     protected void handleNextButtonClick(View v) {
-        mViewModel.getNext();
+        mHasVideoChanged = true;
+        mViewModel.goToNextStep();
+    }
+
+    @Optional
+    @OnClick(R.id.btn_detail_previous)
+    protected void handlePreviousButtonClick(View v) {
+        mHasVideoChanged = true;
+        mViewModel.goToPreviousStep();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Timber.e("onCreateView: Called!");
         super.onViewCreated(view, savedInstanceState);
-        Timber.d("onViewCreated: called...");
+        initializePlayer();
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
-        mViewModel.getChosenStep().observe(this, step -> {
-            Timber.d("Step received. Id: %d", step.getId());
-            String videoUrl = step.getVideoURL();
-            initializePlayer(TextUtils.isEmpty(videoUrl) ? null : Uri.parse(videoUrl));
+        mViewModel.getMoreSteps().observe(this, stepAndSteps -> {
+            Timber.e("step ID: %d, and steps toString: %s",
+                    stepAndSteps.currentStep.getId(), stepAndSteps.steps.toString());
+
+            mInstructions.setText(stepAndSteps.currentStep.getDescription());
+
+            int index = stepAndSteps.steps.indexOf(stepAndSteps.currentStep);
+            if (index == 0) {
+                Timber.d("Disable PREVIOUS button");
+            } else if (index == stepAndSteps.steps.size() - 1) {
+                Timber.d("Disable NEXT button");
+            }
+
+            String videoUrl = stepAndSteps.currentStep.getVideoURL();
+            long playerPosition = 0L;
+            if (savedInstanceState != null && !mHasVideoChanged) playerPosition = savedInstanceState
+                    .getLong("playerState", 0L);
+            loadMediaForPlayer(videoUrl, playerPosition);
         });
     }
 
-    private void initializePlayer(Uri videoUri) {
-        if (mExoPlayer != null) return;
-        mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), new DefaultTrackSelector());
-        mPlayerView.setPlayer(mExoPlayer);
+    private void loadMediaForPlayer(String videoUrl, long playerPosition) {
+        Uri videoUri = TextUtils.isEmpty(videoUrl) ? null : Uri.parse(videoUrl);
         String userAgent = Util.getUserAgent(getContext(), "Baking-Time");
         MediaSource mediaSource = new ExtractorMediaSource.Factory(
                 new DefaultDataSourceFactory(getContext(), userAgent))
                 .createMediaSource(videoUri, null, null);
         mExoPlayer.prepare(mediaSource);
         mExoPlayer.setPlayWhenReady(true);
-        mExoPlayer.addListener(this);
+        if (playerPosition != 0L) mExoPlayer.seekTo(playerPosition);
+    }
+
+    private void initializePlayer() {
+        if (mExoPlayer == null) {
+            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(),
+                    new DefaultTrackSelector());
+            mPlayerView.setPlayer(mExoPlayer);
+            mExoPlayer.addListener(this);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("playerState", mExoPlayer.getCurrentPosition());
     }
 
     private void releasePlayer() {

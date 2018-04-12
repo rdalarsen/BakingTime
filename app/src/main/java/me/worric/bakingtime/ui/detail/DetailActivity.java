@@ -53,7 +53,7 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         if (savedInstanceState == null && !mTabletMode) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detail_fragment_container, new MasterFragment())
-                    .addToBackStack(null)
+//                    .addToBackStack(null)
                     .commit();
         }
     }

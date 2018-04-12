@@ -78,7 +78,6 @@ public class MasterFragment extends Fragment {
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
             mAdapter.swapSteps(recipeView.mSteps);
-            Timber.d("Recipe id: %d", recipeView.mRecipe.getId());
             restoreLayoutManagerState(savedInstanceState);
         });
     }
@@ -93,7 +92,6 @@ public class MasterFragment extends Fragment {
 
         mAdapter = new StepsAdapter((step, position) -> {
             mViewModel.setChosenStep(step);
-            mViewModel.setStepPosition(position);
             mListener.onStepClick(step, position);
         });
         mStepsList.setAdapter(mAdapter);
@@ -113,8 +111,6 @@ public class MasterFragment extends Fragment {
 
     private void saveLayoutManagerState(final Bundle outState) {
         Parcelable savedLayoutManagerState = mManager.onSaveInstanceState();
-        Timber.d("on SAVE: Parcelable is: %s",
-                savedLayoutManagerState == null ? "NULL" : "NOT NULL");
         outState.putParcelable(EXTRA_LAYOUT_MANAGER_STATE, savedLayoutManagerState);
     }
 
