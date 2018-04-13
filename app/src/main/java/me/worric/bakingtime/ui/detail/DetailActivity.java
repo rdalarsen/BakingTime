@@ -24,7 +24,7 @@ import timber.log.Timber;
 public class DetailActivity extends AppCompatActivity implements HasSupportFragmentInjector,
         MasterFragment.StepClickListener {
 
-    private static final String EXTRA_RECIPE_ID = "me.worric.bakingtime.extra_recipe_id";
+    public static final String EXTRA_RECIPE_ID = "me.worric.bakingtime.extra_recipe_id";
 
     @Inject
     protected ViewModelProvider.Factory mFactory;
