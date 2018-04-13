@@ -59,10 +59,11 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayoutManager.VERTICAL, false));
         }
 
-        mAdapter = new RecipeAdapter(recipeView -> {
+        RecipeAdapter.RecipeClickListener listener = recipeView -> {
             Intent intent = DetailActivity.newIntent(this, recipeView.mRecipe.getId());
             startActivity(intent);
-        });
+        };
+        mAdapter = new RecipeAdapter(listener);
         mRecipeList.setAdapter(mAdapter);
     }
 

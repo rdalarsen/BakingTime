@@ -12,11 +12,14 @@ import me.worric.bakingtime.ui.detail.DetailActivity;
 
 public class BakingWidget extends AppWidgetProvider {
 
+    public static final String WIDGET_ID = "me.worric.bakingtime.widget_id";
+
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.baking_widget);
         Intent remoteServiceIntent = new Intent(context, BakingRemoteViewsService.class);
+        remoteServiceIntent.putExtra(WIDGET_ID, appWidgetId);
         views.setRemoteAdapter(R.id.widget_recipe_list, remoteServiceIntent);
 
         Intent recipeDetailIntent = new Intent(context, DetailActivity.class);

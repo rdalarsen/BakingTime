@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -17,6 +15,7 @@ import dagger.android.AndroidInjection;
 import me.worric.bakingtime.AppExecutors;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.db.models.RecipeView;
+import me.worric.bakingtime.data.models.Ingredient;
 import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.di.AppContext;
 import me.worric.bakingtime.ui.detail.DetailActivity;
@@ -34,6 +33,9 @@ public class BakingRemoteViewsService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
+        int appWIdgetId = intent.getIntExtra(BakingWidget.WIDGET_ID, -1);
+        long recipeId = WidgetConfigActivity.loadIdPref(getApplicationContext(), appWIdgetId);
+        mFactory.setId(recipeId);
         return mFactory;
     }
 
@@ -43,8 +45,9 @@ public class BakingRemoteViewsService extends RemoteViewsService {
         private final Repository<RecipeView> mRepository;
         private final Context mContext;
         private final AppExecutors mExecutors;
-        private List<RecipeView> mRecipeList;
-        private Observer<List<RecipeView>> mRecipeObserver;
+        private RecipeView mRecipeView;
+        private Observer<RecipeView> mRecipeObserver;
+        private long mRecipeId = 0L;
 
         @Inject
         public BakingRemoteViewsFactory(@AppContext Context context,
@@ -53,13 +56,17 @@ public class BakingRemoteViewsService extends RemoteViewsService {
             mRepository = recipeRepository;
             mContext = context;
             mExecutors = executors;
-            mRecipeObserver  = recipeViews -> {
-                mRecipeList = recipeViews;
+            mRecipeObserver  = recipeView -> {
+                mRecipeView = recipeView;
                 AppWidgetManager manager = AppWidgetManager.getInstance(mContext);
                 ComponentName cn = new ComponentName(mContext, BakingWidget.class);
                 int[] widgets = manager.getAppWidgetIds(cn);
                 manager.notifyAppWidgetViewDataChanged(widgets, R.id.widget_recipe_list);
             };
+        }
+
+        void setId(long recipeId) {
+            mRecipeId = recipeId;
         }
 
         @Override
@@ -70,14 +77,14 @@ public class BakingRemoteViewsService extends RemoteViewsService {
         @Override
         public RemoteViews getViewAt(int position) {
 
-            RecipeView recipe = mRecipeList.get(position);
+            Ingredient ingredient = mRecipeView.mIngredients.get(position);
 
             RemoteViews rv = new RemoteViews(mContext.getPackageName(),
-                    android.R.layout.simple_list_item_2);
-            rv.setTextViewText(android.R.id.text1, recipe.mRecipe.getName());
+                    android.R.layout.simple_list_item_1);
+            rv.setTextViewText(android.R.id.text1, ingredient.getIngredient());
 
             Intent fillInIntent = new Intent();
-            fillInIntent.putExtra(DetailActivity.EXTRA_RECIPE_ID, recipe.mRecipe.getId());
+            fillInIntent.putExtra(DetailActivity.EXTRA_RECIPE_ID, mRecipeView.mRecipe.getId());
             rv.setOnClickFillInIntent(android.R.id.text1, fillInIntent);
 
             return rv;
@@ -87,19 +94,19 @@ public class BakingRemoteViewsService extends RemoteViewsService {
         public void onCreate() {
             Timber.d("OnCreate: called");
             mExecutors.mainThread().execute(() ->
-                    mRepository.findAll().observeForever(mRecipeObserver));
+                    mRepository.findOneById(mRecipeId).observeForever(mRecipeObserver));
         }
 
         @Override
         public void onDestroy() {
             Timber.d("onDestroy: called");
             mExecutors.mainThread().execute(() ->
-                    mRepository.findAll().removeObserver(mRecipeObserver));
+                    mRepository.findOneById(mRecipeId).removeObserver(mRecipeObserver));
         }
 
         @Override
         public int getCount() {
-            return mRecipeList == null ? 0 : mRecipeList.size();
+            return mRecipeView == null ? 0 : mRecipeView.mIngredients.size();
         }
 
         @Override

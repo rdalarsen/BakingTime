@@ -19,7 +19,9 @@ import me.worric.bakingtime.ui.detail.DetailActivityModule;
 import me.worric.bakingtime.ui.main.MainActivity;
 import me.worric.bakingtime.ui.main.MainActivityModule;
 import me.worric.bakingtime.ui.util.NetUtils;
+import me.worric.bakingtime.ui.viewmodels.ViewModelModule;
 import me.worric.bakingtime.ui.widget.BakingRemoteViewsService;
+import me.worric.bakingtime.ui.widget.WidgetConfigActivity;
 import me.worric.bakingtime.ui.widget.WidgetUpdateService;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -47,6 +49,10 @@ public abstract class AppModule {
     @ActivityScope
     @ContributesAndroidInjector(modules = MainActivityModule.class)
     abstract MainActivity contributesMainActivity();
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = ViewModelModule.class)
+    abstract WidgetConfigActivity contributesWidgetActivity();
 
     @ActivityScope
     @ContributesAndroidInjector(modules = DetailActivityModule.class)
