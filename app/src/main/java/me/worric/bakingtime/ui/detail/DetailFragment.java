@@ -44,9 +44,9 @@ import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_PLAYER_STATE;
 
 public class DetailFragment extends Fragment implements Player.EventListener {
 
-    @BindView(R.id.tv_detail_step_instructions)
+    @Nullable @BindView(R.id.tv_detail_step_instructions)
     protected TextView mInstructions;
-    @BindView(R.id.detail_exoplayer)
+    @Nullable @BindView(R.id.detail_exoplayer)
     protected PlayerView mPlayerView;
     @Inject
     protected ViewModelProvider.Factory mFactory;
@@ -87,13 +87,18 @@ public class DetailFragment extends Fragment implements Player.EventListener {
             Timber.e("step ID: %d, and steps toString: %s",
                     stepAndSteps.currentStep.getId(), stepAndSteps.steps.toString());
 
-            mInstructions.setText(stepAndSteps.currentStep.getDescription());
+            boolean isLandscapeMode = getContext().getResources().getBoolean(R.bool.landscape_mode);
+            Timber.d("Landscape mode: %s", isLandscapeMode);
 
-            int index = stepAndSteps.steps.indexOf(stepAndSteps.currentStep);
-            if (index == 0) {
-                Timber.d("Disable PREVIOUS button");
-            } else if (index == stepAndSteps.steps.size() - 1) {
-                Timber.d("Disable NEXT button");
+            if (!isLandscapeMode) {
+                mInstructions.setText(stepAndSteps.currentStep.getDescription());
+
+                int index = stepAndSteps.steps.indexOf(stepAndSteps.currentStep);
+                if (index == 0) {
+                    Timber.d("Disable PREVIOUS button");
+                } else if (index == stepAndSteps.steps.size() - 1) {
+                    Timber.d("Disable NEXT button");
+                }
             }
 
             String videoUrl = stepAndSteps.currentStep.getVideoURL();
