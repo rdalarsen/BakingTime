@@ -19,7 +19,7 @@ public class BakingGlideModule extends AppGlideModule {
         builder.setDefaultRequestOptions(
                 new RequestOptions()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .error(R.drawable.ic_launcher_foreground)
+                        .error(R.drawable.ic_action_name)
         );
     }
 

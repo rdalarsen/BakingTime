@@ -18,39 +18,24 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
 import me.worric.bakingtime.R;
-import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.ui.main.RecipeAdapter;
 import me.worric.bakingtime.ui.util.UiUtils;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 
 public class WidgetConfigActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "me.worric.bakingtime.ui.BakingWidget";
+    private static final String PREFS_NAME = "me.worric.bakingtime.ui.BakingWidgetProvider";
     private static final String PREF_PREFIX_KEY = "bakingwidget_";
-    int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+    private static final String PREF_TYPE_NAME = "name_";
+    private static final String PREF_TYPE_RECIPE_ID = "id_";
+
+    private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+
+    @BindView(R.id.rv_recipe_list) protected RecyclerView mRecipeList;
 
     public WidgetConfigActivity() {
         super();
     }
-
-    static void saveIdPref(Context context, int appWidgetId, long id) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-        prefs.putLong(PREF_PREFIX_KEY + appWidgetId, id);
-        prefs.apply();
-    }
-
-    static long loadIdPref(Context context, int appWidgetId) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        return prefs.getLong(PREF_PREFIX_KEY + appWidgetId, -1L);
-    }
-
-    static void deleteIdPref(Context context, int appWidgetId) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-        prefs.remove(PREF_PREFIX_KEY + appWidgetId);
-        prefs.apply();
-    }
-
-    @BindView(R.id.rv_recipe_list) protected RecyclerView mRecipeList;
 
     @Inject
     protected ViewModelProvider.Factory mFactory;
@@ -62,14 +47,12 @@ public class WidgetConfigActivity extends AppCompatActivity {
         AndroidInjection.inject(this);
         super.onCreate(icicle);
 
-        // Set the result to CANCELED.  This will cause the widget host to cancel
-        // out of the widget placement if the user presses the back button.
+        // Set default result used if user cancels
         setResult(RESULT_CANCELED);
 
         setContentView(R.layout.activity_widget_config);
         ButterKnife.bind(this);
 
-        // Find the widget id from the intent.
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if (extras != null) {
@@ -77,7 +60,6 @@ public class WidgetConfigActivity extends AppCompatActivity {
                     AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
         }
 
-        // If this activity was started with an intent without an app widget ID, finish with an error.
         if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             finish();
             return;
@@ -104,27 +86,52 @@ public class WidgetConfigActivity extends AppCompatActivity {
                     LinearLayoutManager.VERTICAL, false));
         }
 
-        WidgetRecipeClickListener listener = recipeView -> {
+        mAdapter = new RecipeAdapter(recipeView -> {
             final Context context = WidgetConfigActivity.this;
 
-            // When the button is clicked, store the Id locally
-            saveIdPref(context, mAppWidgetId, recipeView.mRecipe.getId());
+            // Store name and id in prefs
+            saveIdAndName(context, mAppWidgetId, recipeView.mRecipe.getId(),
+                    recipeView.mRecipe.getName());
 
-            // It is the responsibility of the configuration activity to update the app widget
+            // Update widget
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            BakingWidget.updateAppWidget(context, appWidgetManager, mAppWidgetId);
+            BakingWidgetProvider.updateAppWidget(context, appWidgetManager, mAppWidgetId);
 
-            // Make sure we pass back the original appWidgetId
+            // Pass appWidgetId back to caller
             Intent resultValue = new Intent();
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             setResult(RESULT_OK, resultValue);
             finish();
-        };
-        mAdapter = new RecipeAdapter(listener);
+        });
         mRecipeList.setAdapter(mAdapter);
     }
 
-    public interface WidgetRecipeClickListener {
-        void onRecipeClicked(RecipeView recipe);
+    static void saveIdAndName(Context context, int appWidgetId, long id, String name) {
+        SharedPreferences.Editor prefs = context
+                .getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+        prefs.putLong(PREF_PREFIX_KEY + PREF_TYPE_RECIPE_ID + appWidgetId, id);
+        prefs.putString(PREF_PREFIX_KEY + PREF_TYPE_NAME + appWidgetId, name);
+        prefs.apply();
     }
+
+    static long loadId(Context context, int appWidgetId) {
+        SharedPreferences prefs = context
+                .getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        return prefs.getLong(PREF_PREFIX_KEY + PREF_TYPE_RECIPE_ID + appWidgetId, -1L);
+    }
+
+    static String loadName(Context context, int appWidgetId) {
+        SharedPreferences prefs = context
+                .getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        return prefs.getString(PREF_PREFIX_KEY + PREF_TYPE_NAME + appWidgetId, "");
+    }
+
+    static void deleteIdAndName(Context context, int appWidgetId) {
+        SharedPreferences.Editor prefs = context
+                .getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+        prefs.remove(PREF_PREFIX_KEY + PREF_TYPE_RECIPE_ID + appWidgetId);
+        prefs.remove(PREF_PREFIX_KEY + PREF_TYPE_NAME + appWidgetId);
+        prefs.apply();
+    }
+
 }

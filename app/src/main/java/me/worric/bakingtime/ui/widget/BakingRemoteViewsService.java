@@ -1,5 +1,6 @@
 package me.worric.bakingtime.ui.widget;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
@@ -8,6 +9,7 @@ import android.widget.RemoteViewsService;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
+import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.data.models.Ingredient;
 import me.worric.bakingtime.data.repository.Repository;
@@ -26,9 +28,7 @@ public class BakingRemoteViewsService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        int appWIdgetId = intent.getIntExtra(BakingWidget.WIDGET_ID, -1);
-        long recipeId = WidgetConfigActivity.loadIdPref(getApplicationContext(), appWIdgetId);
-        return new BakingRemoteViewsFactory(getApplicationContext(), recipeRepository, recipeId);
+        return new BakingRemoteViewsFactory(getApplicationContext(), recipeRepository, intent);
     }
 
     public static class BakingRemoteViewsFactory implements RemoteViewsFactory {
@@ -38,16 +38,19 @@ public class BakingRemoteViewsService extends RemoteViewsService {
         private final long mRecipeId;
         private RecipeView mRecipeView;
 
-        public BakingRemoteViewsFactory(Context context, Repository<RecipeView> recipeRepository,
-                                        long recipeId) {
+        BakingRemoteViewsFactory(Context context, Repository<RecipeView> recipeRepository,
+                                        Intent intent) {
             mRepository = recipeRepository;
             mContext = context;
-            mRecipeId = recipeId;
+            int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID);
+            mRecipeId = WidgetConfigActivity.loadId(mContext, appWidgetId);
         }
 
         @Override
         public void onDataSetChanged() {
-            Timber.d("onDataSetChanged: called");
+            Timber.e("onDataSetChanged: called. Repository hashCode: %d",
+                    mRepository.hashCode());
             mRecipeView = mRepository.findOneByIdNonReactive(mRecipeId);
         }
 
@@ -58,7 +61,9 @@ public class BakingRemoteViewsService extends RemoteViewsService {
 
             RemoteViews rv = new RemoteViews(mContext.getPackageName(),
                     android.R.layout.simple_list_item_1);
-            rv.setTextViewText(android.R.id.text1, ingredient.getIngredient());
+            String ingredientText = mContext.getString(R.string.widget_ingredient_format_string,
+                    ingredient.getIngredient(), Double.toString(ingredient.getQuantity()), ingredient.getMeasure());
+            rv.setTextViewText(android.R.id.text1, ingredientText);
 
             Intent fillInIntent = new Intent();
             fillInIntent.putExtra(DetailActivity.EXTRA_RECIPE_ID, mRecipeView.mRecipe.getId());

@@ -22,7 +22,6 @@ import me.worric.bakingtime.ui.util.NetUtils;
 import me.worric.bakingtime.ui.viewmodels.ViewModelModule;
 import me.worric.bakingtime.ui.widget.BakingRemoteViewsService;
 import me.worric.bakingtime.ui.widget.WidgetConfigActivity;
-import me.worric.bakingtime.ui.widget.WidgetUpdateService;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -57,9 +56,6 @@ public abstract class AppModule {
     @ActivityScope
     @ContributesAndroidInjector(modules = DetailActivityModule.class)
     abstract DetailActivity contributesDetailActivity();
-
-    @ContributesAndroidInjector
-    abstract WidgetUpdateService contributeWidgetUpdateService();
 
     @ContributesAndroidInjector
     abstract BakingRemoteViewsService contributesRemoteViewsService();

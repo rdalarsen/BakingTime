@@ -16,20 +16,14 @@ import butterknife.ButterKnife;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.ui.GlideApp;
-import me.worric.bakingtime.ui.widget.WidgetConfigActivity;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHolder> {
 
     private List<RecipeView> mRecipes;
     private RecipeClickListener mListener;
-    private WidgetConfigActivity.WidgetRecipeClickListener mWidgetListener;
 
     public RecipeAdapter(@NonNull RecipeClickListener listener) {
         mListener = listener;
-    }
-
-    public RecipeAdapter(@NonNull WidgetConfigActivity.WidgetRecipeClickListener listener) {
-        mWidgetListener = listener;
     }
 
     public void swapData(List<RecipeView> recipes) {
@@ -59,10 +53,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
                 .load(recipeView.mRecipe.getImage())
                 .fitCenter()
                 .into(holder.header);
-        if (mListener == null && mWidgetListener != null) holder.itemView.setOnClickListener(v ->
-                mWidgetListener.onRecipeClicked(recipeView));
-        if (mListener != null && mWidgetListener == null) holder.itemView.setOnClickListener(v ->
-                mListener.onRecipeClicked(recipeView));
+        holder.itemView.setOnClickListener(v -> mListener.onRecipeClicked(recipeView));
     }
 
     @Override

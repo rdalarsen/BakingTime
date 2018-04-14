@@ -20,6 +20,9 @@ import timber.log.Timber;
 @ActivityScope
 public class BakingViewModel extends ViewModel {
 
+    private static final int NEXT = 0;
+    private static final int PREVIOUS = 1;
+
     private final MutableLiveData<Long> mRecipeId;
     private final MutableLiveData<Step> mChosenStep;
     private final Repository<RecipeView> mRecipeRepository;
@@ -30,11 +33,13 @@ public class BakingViewModel extends ViewModel {
         mRecipeId = new MutableLiveData<>();
         mChosenStep = new MutableLiveData<>();
         mRecipeRepository = recipeRepository;
+        Timber.e("Repository hashCode: %d", mRecipeRepository.hashCode());
         mActiveRecipeMediator = new MediatorLiveData<>();
         mActiveRecipeMediator.addSource(
                 Transformations.switchMap(mRecipeId, mRecipeRepository::findOneById),
                 recipeView -> {
-                    Timber.d("Observation updated. Id of activeRecipe: %d", recipeView.mRecipe.getId());
+                    Timber.d("Observation updated. Id of activeRecipe: %d",
+                            recipeView.mRecipe.getId());
                     mActiveRecipeMediator.setValue(recipeView);
                 }
         );
@@ -53,22 +58,21 @@ public class BakingViewModel extends ViewModel {
     }
 
     public void goToNextStep() {
-        RecipeView recipeView = mActiveRecipeMediator.getValue();
-        Step chosenStep = mChosenStep.getValue();
-        if (recipeView != null && recipeView.mSteps != null && chosenStep != null) {
-            int index = recipeView.mSteps.indexOf(chosenStep);
-            if (index < (recipeView.mSteps.size() - 1)) {
-                mChosenStep.setValue(recipeView.mSteps.get(index + 1));
-            }
-        }
+        goToNextOrPrevious(NEXT);
     }
 
     public void goToPreviousStep() {
+        goToNextOrPrevious(PREVIOUS);
+    }
+
+    private void goToNextOrPrevious(int nextOrPrevious) {
         RecipeView recipeView = mActiveRecipeMediator.getValue();
         Step chosenStep = mChosenStep.getValue();
         if (recipeView != null && recipeView.mSteps != null && chosenStep != null) {
             int index = recipeView.mSteps.indexOf(chosenStep);
-            if (index > 0) {
+            if (nextOrPrevious == NEXT && index < (recipeView.mSteps.size() - 1)) {
+                mChosenStep.setValue(recipeView.mSteps.get(index + 1));
+            } else if (nextOrPrevious == PREVIOUS && index > 0) {
                 mChosenStep.setValue(recipeView.mSteps.get(index - 1));
             }
         }

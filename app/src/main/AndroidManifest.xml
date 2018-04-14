@@ -3,6 +3,7 @@
     package="me.worric.bakingtime">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".App"
@@ -12,6 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".ui.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,11 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.detail.DetailActivity"
+
+        <activity android:name=".ui.detail.DetailActivity"
             android:parentActivityName=".ui.main.MainActivity" />
 
-        <receiver android:name=".ui.widget.BakingWidget">
+        <receiver android:name=".ui.widget.BakingWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -33,14 +35,14 @@
                 android:resource="@xml/baking_widget_info" />
         </receiver>
 
-        <service
-            android:name=".ui.widget.WidgetUpdateService"
+        <service android:name=".ui.widget.WidgetUpdateService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-        <service
-            android:name=".ui.widget.BakingRemoteViewsService"
+
+        <service android:name=".ui.widget.BakingRemoteViewsService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
-        <activity android:name=".ui.widget.WidgetConfigActivity"></activity>
+        <activity android:name=".ui.widget.WidgetConfigActivity" />
+
     </application>
 
 </manifest>

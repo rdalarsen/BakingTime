@@ -19,7 +19,6 @@ import dagger.android.support.HasSupportFragmentInjector;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
-import timber.log.Timber;
 
 public class DetailActivity extends AppCompatActivity implements HasSupportFragmentInjector,
         MasterFragment.StepClickListener {
@@ -44,16 +43,16 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         Long recipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, -1L);
         BakingViewModel mViewModel = ViewModelProviders.of(this, mFactory)
                 .get(BakingViewModel.class);
+        mViewModel.getChosenRecipe().observe(this, recipeView -> {
+            if (recipeView != null) getSupportActionBar().setTitle(recipeView.mRecipe.getName());
+        });
         mViewModel.setChosenRecipe(recipeId);
 
         mTabletMode = getResources().getBoolean(R.bool.tablet_mode);
 
-        Timber.d("TwoPaneMode? %s", mTabletMode ? "YES" : "NO");
-
         if (savedInstanceState == null && !mTabletMode) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detail_fragment_container, new MasterFragment())
-//                    .addToBackStack(null)
                     .commit();
         }
     }
@@ -72,13 +71,10 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
     @Override
     public void onStepClick(Step step, int position) {
         if (!mTabletMode) {
-            Fragment detailFragment = getSupportFragmentManager().findFragmentByTag("kaffe");
-            if (detailFragment == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.detail_fragment_container, new DetailFragment(), "kaffe")
-                        .addToBackStack(null)
-                        .commit();
-            }
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.detail_fragment_container, new DetailFragment())
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 }

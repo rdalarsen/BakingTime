@@ -12,4 +12,6 @@
         <item quantity="one">Serving: %d</item>
         <item quantity="other">Servings: %d</item>
     </plurals>
+
+    <string name="widget_ingredient_format_string">%s: %s %s</string>
 </resources>
