@@ -40,6 +40,8 @@ import me.worric.bakingtime.R;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
+import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_PLAYER_STATE;
+
 public class DetailFragment extends Fragment implements Player.EventListener {
 
     @BindView(R.id.tv_detail_step_instructions)
@@ -51,7 +53,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     private BakingViewModel mViewModel;
     private Unbinder mUnbinder;
     private SimpleExoPlayer mExoPlayer;
-    private boolean mHasVideoChanged = false;
+    private boolean mVideoChanged = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,14 +66,14 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     @Optional
     @OnClick(R.id.btn_detail_next)
     protected void handleNextButtonClick(View v) {
-        mHasVideoChanged = true;
+        mVideoChanged = true;
         mViewModel.goToNextStep();
     }
 
     @Optional
     @OnClick(R.id.btn_detail_previous)
     protected void handlePreviousButtonClick(View v) {
-        mHasVideoChanged = true;
+        mVideoChanged = true;
         mViewModel.goToPreviousStep();
     }
 
@@ -96,8 +98,8 @@ public class DetailFragment extends Fragment implements Player.EventListener {
 
             String videoUrl = stepAndSteps.currentStep.getVideoURL();
             long playerPosition = 0L;
-            if (savedInstanceState != null && !mHasVideoChanged) playerPosition = savedInstanceState
-                    .getLong("playerState", 0L);
+            if (savedInstanceState != null && !mVideoChanged) playerPosition = savedInstanceState
+                    .getLong(EXTRA_PLAYER_STATE, 0L);
             loadMediaForPlayer(videoUrl, playerPosition);
         });
     }
@@ -125,7 +127,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong("playerState", mExoPlayer.getCurrentPosition());
+        outState.putLong(EXTRA_PLAYER_STATE, mExoPlayer.getCurrentPosition());
     }
 
     private void releasePlayer() {
@@ -136,9 +138,9 @@ public class DetailFragment extends Fragment implements Player.EventListener {
 
     @Override
     public void onDestroyView() {
-        releasePlayer();
-        mUnbinder.unbind();
         super.onDestroyView();
+        mUnbinder.unbind();
+        releasePlayer();
     }
 
     public DetailFragment() {

@@ -109,7 +109,7 @@ public class MasterFragment extends Fragment {
     }
 
     private void saveLayoutManagerState(final Bundle outState) {
-        Parcelable savedLayoutManagerState = mStepsList.getLayoutManager().onSaveInstanceState();
+        Parcelable savedLayoutManagerState = mManager.onSaveInstanceState();
         outState.putParcelable(EXTRA_LAYOUT_MANAGER_STATE, savedLayoutManagerState);
     }
 
@@ -117,7 +117,7 @@ public class MasterFragment extends Fragment {
         if (savedInstanceState == null) return;
         Parcelable savedLayoutManagerState = savedInstanceState
                 .getParcelable(EXTRA_LAYOUT_MANAGER_STATE);
-        mStepsList.getLayoutManager().onRestoreInstanceState(savedLayoutManagerState);
+        mManager.onRestoreInstanceState(savedLayoutManagerState);
     }
 
     public interface StepClickListener {
