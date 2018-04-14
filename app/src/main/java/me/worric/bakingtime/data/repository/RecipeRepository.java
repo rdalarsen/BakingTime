@@ -48,6 +48,11 @@ public class RecipeRepository implements Repository<RecipeView>, Callback<List<R
         return mAppDatabase.recipeViewDao().findOneById(id);
     }
 
+    @Override
+    public RecipeView findOneByIdNonReactive(Long id) {
+        return mAppDatabase.recipeViewDao().findOneByIdNonReactive(id);
+    }
+
     private void loadData() {
         mExecutors.diskIO().execute(() -> {
             if (mAppDatabase.recipeDao().loadAllRecipes().isEmpty()) {

@@ -20,17 +20,20 @@ public class BakingWidget extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.baking_widget);
         Intent remoteServiceIntent = new Intent(context, BakingRemoteViewsService.class);
         remoteServiceIntent.putExtra(WIDGET_ID, appWidgetId);
-        views.setRemoteAdapter(R.id.widget_recipe_list, remoteServiceIntent);
+        views.setRemoteAdapter(R.id.widget_ingredients_list, remoteServiceIntent);
+
+        views.setTextViewText(R.id.widget_cake_name, "TITLE");
 
         Intent recipeDetailIntent = new Intent(context, DetailActivity.class);
         PendingIntent pi = PendingIntent.getActivity(context, 0, recipeDetailIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setPendingIntentTemplate(R.id.widget_recipe_list, pi);
+        views.setPendingIntentTemplate(R.id.widget_ingredients_list, pi);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
-    public static void updateWidgets(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    public static void updateWidgets(Context context, AppWidgetManager appWidgetManager,
+                                     int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
@@ -38,8 +41,7 @@ public class BakingWidget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        updateWidgets(context, appWidgetManager, appWidgetIds);
-        //WidgetUpdateService.startUpdateWidget(context);
+        WidgetUpdateService.startUpdateWidget(context);
     }
 
     @Override

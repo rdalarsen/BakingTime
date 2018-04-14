@@ -20,4 +20,8 @@ public interface RecipeViewDao {
     @Query("SELECT * FROM recipes WHERE id IS :id")
     LiveData<RecipeView> findOneById(Long id);
 
+    @Transaction
+    @Query("SELECT * FROM recipes WHERE id IS :id")
+    RecipeView findOneByIdNonReactive(Long id);
+
 }

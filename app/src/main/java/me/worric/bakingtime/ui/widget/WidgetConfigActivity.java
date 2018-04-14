@@ -33,13 +33,6 @@ public class WidgetConfigActivity extends AppCompatActivity {
         super();
     }
 
-    // Write the prefix to the SharedPreferences object for this widget
-    static void saveTitlePref(Context context, int appWidgetId, String text) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-        prefs.putString(PREF_PREFIX_KEY + appWidgetId, text);
-        prefs.apply();
-    }
-
     static void saveIdPref(Context context, int appWidgetId, long id) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
         prefs.putLong(PREF_PREFIX_KEY + appWidgetId, id);
@@ -48,29 +41,10 @@ public class WidgetConfigActivity extends AppCompatActivity {
 
     static long loadIdPref(Context context, int appWidgetId) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        long idValue = prefs.getLong(PREF_PREFIX_KEY + appWidgetId, -1L);
-        return idValue;
+        return prefs.getLong(PREF_PREFIX_KEY + appWidgetId, -1L);
     }
 
     static void deleteIdPref(Context context, int appWidgetId) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-        prefs.remove(PREF_PREFIX_KEY + appWidgetId);
-        prefs.apply();
-    }
-
-    // Read the prefix from the SharedPreferences object for this widget.
-    // If there is no preference saved, get the default from a resource
-    static String loadTitlePref(Context context, int appWidgetId) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        String titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null);
-        if (titleValue != null) {
-            return titleValue;
-        } else {
-            return "EXAMPLE";
-        }
-    }
-
-    static void deleteTitlePref(Context context, int appWidgetId) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
         prefs.remove(PREF_PREFIX_KEY + appWidgetId);
         prefs.apply();
@@ -112,14 +86,12 @@ public class WidgetConfigActivity extends AppCompatActivity {
         setupRecyclerView();
 
         setupViewModel();
-        //mAppWidgetText.setText(loadTitlePref(this, mAppWidgetId));
     }
 
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
-        mViewModel.getRecipes().observe(this, recipesViews -> {
-            mAdapter.swapData(recipesViews);
-        });
+        mViewModel.getRecipes().observe(this, recipesViews ->
+                mAdapter.swapData(recipesViews));
     }
 
     private void setupRecyclerView() {
@@ -135,7 +107,7 @@ public class WidgetConfigActivity extends AppCompatActivity {
         WidgetRecipeClickListener listener = recipeView -> {
             final Context context = WidgetConfigActivity.this;
 
-            // When the button is clicked, store the string locally
+            // When the button is clicked, store the Id locally
             saveIdPref(context, mAppWidgetId, recipeView.mRecipe.getId());
 
             // It is the responsibility of the configuration activity to update the app widget

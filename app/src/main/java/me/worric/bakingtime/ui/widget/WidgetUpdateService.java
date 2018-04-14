@@ -55,7 +55,7 @@ public class WidgetUpdateService extends JobIntentService {
         ComponentName cn = new ComponentName(this, BakingWidget.class);
         int[] appWidgetIds = manager.getAppWidgetIds(cn);
 
-        manager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_recipe_list);
+        manager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_ingredients_list);
 
         BakingWidget.updateWidgets(this, manager, appWidgetIds);
     }
