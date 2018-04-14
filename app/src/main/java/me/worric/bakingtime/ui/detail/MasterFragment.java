@@ -24,11 +24,10 @@ import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
-import timber.log.Timber;
+
+import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_LAYOUT_MANAGER_STATE;
 
 public class MasterFragment extends Fragment {
-
-    private static final String EXTRA_LAYOUT_MANAGER_STATE = "me.worric.bakingtime.extra_layout_manager_state";
 
     private Unbinder mUnbinder;
 
@@ -110,7 +109,7 @@ public class MasterFragment extends Fragment {
     }
 
     private void saveLayoutManagerState(final Bundle outState) {
-        Parcelable savedLayoutManagerState = mManager.onSaveInstanceState();
+        Parcelable savedLayoutManagerState = mStepsList.getLayoutManager().onSaveInstanceState();
         outState.putParcelable(EXTRA_LAYOUT_MANAGER_STATE, savedLayoutManagerState);
     }
 
@@ -118,7 +117,7 @@ public class MasterFragment extends Fragment {
         if (savedInstanceState == null) return;
         Parcelable savedLayoutManagerState = savedInstanceState
                 .getParcelable(EXTRA_LAYOUT_MANAGER_STATE);
-        mManager.onRestoreInstanceState(savedLayoutManagerState);
+        mStepsList.getLayoutManager().onRestoreInstanceState(savedLayoutManagerState);
     }
 
     public interface StepClickListener {

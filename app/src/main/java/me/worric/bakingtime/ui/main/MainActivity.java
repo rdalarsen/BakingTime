@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,7 +19,8 @@ import me.worric.bakingtime.R;
 import me.worric.bakingtime.ui.detail.DetailActivity;
 import me.worric.bakingtime.ui.util.UiUtils;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
-import timber.log.Timber;
+
+import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_LAYOUT_MANAGER_STATE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,14 +40,15 @@ public class MainActivity extends AppCompatActivity {
 
         setupRecyclerView();
 
-        setupViewModel();
+        setupViewModel(savedInstanceState);
     }
 
-    private void setupViewModel() {
+    private void setupViewModel(final Bundle savedInstanceState) {
         mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
         mViewModel.getRecipes().observe(this, recipesViews -> {
-            Timber.e("Recipes %s", recipesViews == null ? "NULL" : "NOT NULL");
+            if (recipesViews == null) return;
             mAdapter.swapData(recipesViews);
+            restoreLayoutManagerState(savedInstanceState);
         });
     }
 
@@ -65,6 +68,24 @@ public class MainActivity extends AppCompatActivity {
         };
         mAdapter = new RecipeAdapter(listener);
         mRecipeList.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveLayoutManagerState(outState);
+    }
+
+    private void saveLayoutManagerState(final Bundle outState) {
+        Parcelable savedLayoutManagerState = mRecipeList.getLayoutManager().onSaveInstanceState();
+        outState.putParcelable(EXTRA_LAYOUT_MANAGER_STATE, savedLayoutManagerState);
+    }
+
+    private void restoreLayoutManagerState(final Bundle savedInstanceState) {
+        if (savedInstanceState == null) return;
+        Parcelable savedLayoutManagerState = savedInstanceState
+                .getParcelable(EXTRA_LAYOUT_MANAGER_STATE);
+        mRecipeList.getLayoutManager().onRestoreInstanceState(savedLayoutManagerState);
     }
 
 }
