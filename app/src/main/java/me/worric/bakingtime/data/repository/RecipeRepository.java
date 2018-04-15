@@ -49,17 +49,16 @@ public class RecipeRepository implements Repository<RecipeView>, Callback<List<R
     }
 
     @Override
-    public RecipeView findOneByIdNonReactive(Long id) {
-        return mAppDatabase.recipeViewDao().findOneByIdNonReactive(id);
+    public RecipeView findOneByIdSync(Long id) {
+        return mAppDatabase.recipeViewDao().findOneByIdSync(id);
     }
 
     private void loadData() {
         mExecutors.diskIO().execute(() -> {
-            if (mAppDatabase.recipeDao().loadAllRecipes().isEmpty()) {
+            if (mAppDatabase.recipeDao().findAll().isEmpty()) {
                 Timber.d("fecthing data...");
-                mExecutors.mainThread().execute(() -> {
-                    mBakingWebService.fetchRecipes().enqueue(this);
-                });
+                mExecutors.mainThread().execute(() ->
+                        mBakingWebService.fetchRecipes().enqueue(this));
             } else {
                 Timber.d("NOT fetching data; database has entries.");
             }
@@ -74,31 +73,41 @@ public class RecipeRepository implements Repository<RecipeView>, Callback<List<R
         final List<Recipe> fetchedRecipes = response.body();
 
         if (fetchedRecipes != null) {
-            mExecutors.diskIO().execute(() -> persistEntities(fetchedRecipes));
+            mExecutors.diskIO().execute(() -> addIdAndPersistEntities(fetchedRecipes));
         }
     }
 
-    private void persistEntities(final List<Recipe> fetchedRecipes) {
-        setIdOnEntities(fetchedRecipes);
-        Timber.d("persisting recipes...");
-        mAppDatabase.recipeDao().insert(fetchedRecipes);
-    }
+    private void addIdAndPersistEntities(final List<Recipe> fetchedRecipes) {
 
-    private void setIdOnEntities(final List<Recipe> fetchedRecipes) {
-        Timber.d("Setting IDs...");
-        for (Recipe recipe : fetchedRecipes) {
-            Long recipeId = recipe.getId();
+        try {
+            mAppDatabase.beginTransaction();
 
-            List<Ingredient> ingredients = recipe.getIngredients();
-            Ingredient.setAllRecipeIds(ingredients, recipeId);
-            Timber.d("persisting ingredients...");
-            mAppDatabase.ingredientDao().insertAll(ingredients);
+            Timber.d("handling sublists...");
 
-            List<Step> steps = recipe.getSteps();
-            Step.setAllRecipeIds(steps, recipeId);
-            Timber.d("persisting steps...");
-            mAppDatabase.stepDao().insertAll(steps);
+            for (Recipe recipe : fetchedRecipes) {
+                Long recipeId = recipe.getId();
+
+                Timber.d("Setting ID and persisting ingredients...");
+                List<Ingredient> ingredients = recipe.getIngredients();
+                Ingredient.setAllRecipeIds(ingredients, recipeId);
+                mAppDatabase.ingredientDao().insertAll(ingredients);
+
+                Timber.d("Setting ID and persisting steps...");
+                List<Step> steps = recipe.getSteps();
+                Step.setAllRecipeIds(steps, recipeId);
+                mAppDatabase.stepDao().insertAll(steps);
+            }
+
+            Timber.d("Persisting recipes");
+            mAppDatabase.recipeDao().insertAll(fetchedRecipes);
+
+            mAppDatabase.setTransactionSuccessful();
+        } catch (Exception e) {
+            Timber.e(e, "There was an error persisting entities");
+        } finally {
+            mAppDatabase.endTransaction();
         }
+
     }
 
     @Override

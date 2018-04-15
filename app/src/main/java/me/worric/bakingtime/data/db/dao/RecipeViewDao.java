@@ -22,6 +22,6 @@ public interface RecipeViewDao {
 
     @Transaction
     @Query("SELECT * FROM recipes WHERE id IS :id")
-    RecipeView findOneByIdNonReactive(Long id);
+    RecipeView findOneByIdSync(Long id);
 
 }

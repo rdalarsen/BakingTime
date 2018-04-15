@@ -51,7 +51,7 @@ public class BakingRemoteViewsService extends RemoteViewsService {
         public void onDataSetChanged() {
             Timber.e("onDataSetChanged: called. Repository hashCode: %d",
                     mRepository.hashCode());
-            mRecipeView = mRepository.findOneByIdNonReactive(mRecipeId);
+            mRecipeView = mRepository.findOneByIdSync(mRecipeId);
         }
 
         @Override

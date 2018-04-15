@@ -13,9 +13,9 @@ import me.worric.bakingtime.data.models.Recipe;
 public interface RecipeDao {
 
     @Query("SELECT * FROM recipes")
-    List<Recipe> loadAllRecipes();
+    List<Recipe> findAll();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(List<Recipe> recipes);
+    void insertAll(List<Recipe> recipes);
 
 }

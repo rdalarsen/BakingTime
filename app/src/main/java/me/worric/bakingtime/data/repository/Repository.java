@@ -10,6 +10,6 @@ public interface Repository<T> {
 
     LiveData<T> findOneById(Long id);
 
-    T findOneByIdNonReactive(Long id);
+    T findOneByIdSync(Long id);
 
 }
