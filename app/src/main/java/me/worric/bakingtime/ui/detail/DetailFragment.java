@@ -38,6 +38,7 @@ import butterknife.Optional;
 import butterknife.Unbinder;
 import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
+import me.worric.bakingtime.ui.util.UiUtils;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
@@ -96,7 +97,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        checkIfRestoring(savedInstanceState);
+        setIsRestoring(savedInstanceState);
         initializePlayer();
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
         mViewModel.getChosenStepWithSteps().observe(this, stepWithSteps -> {
@@ -104,7 +105,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
                     stepWithSteps.currentStep.getId(), stepWithSteps.currentRecipeSteps.toString());
 
             // Every configuration except phone landscape
-            if (!isPhoneLandscape()) {
+            if (!UiUtils.isPhoneLandscape(getContext())) {
                 mInstructions.setText(stepWithSteps.currentStep.getDescription());
 
                 int index = stepWithSteps.getIndexOfCurrentStep();
@@ -126,16 +127,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
         });
     }
 
-    private boolean isPhoneLandscape() {
-        final boolean isLandscapeMode = getContext().getResources().getBoolean(R.bool.landscape_mode);
-        final boolean isTabletMode = getContext().getResources().getBoolean(R.bool.tablet_mode);
-
-        Timber.d("Landscape mode: %s, tablet mode is: %s", isLandscapeMode, isTabletMode);
-
-        return isLandscapeMode && !isTabletMode;
-    }
-
-    private void checkIfRestoring(@Nullable Bundle savedInstanceState) {
+    private void setIsRestoring(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             mIsRestoring = savedInstanceState.getBoolean(EXTRA_IS_RESTORING);
         }
