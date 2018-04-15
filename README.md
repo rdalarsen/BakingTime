@@ -35,3 +35,5 @@ Aside from the core project requirements set forth by Udacity, this project stan
 #### Attributions
 
 - General advice on how to use ExoPlayer from [this article](https://android.jlelse.eu/android-exoplayer-starters-guide-6350433f256c)
+- Much inspiration on MVVM from Google's [codelab](https://codelabs.developers.google.com/codelabs/build-app-with-arch-components/index.html?index=..%2F..%2Findex#0)
+- Info on Room relationships from [this article](https://android.jlelse.eu/android-architecture-components-room-relationships-bf473510c14a)
