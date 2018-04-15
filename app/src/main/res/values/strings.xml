@@ -15,4 +15,6 @@
     </plurals>
 
     <string name="widget_ingredient_format_string">%s: %s %s</string>
+    <string name="detail_fragment_button_next">Next</string>
+    <string name="detail_fragment_button_previous">Previous</string>
 </resources>

@@ -78,6 +78,10 @@ public class MasterFragment extends Fragment {
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
             mAdapter.swapSteps(recipeView.mSteps);
             restoreLayoutManagerState(savedInstanceState);
+
+            // If we're in tablet mode, load the first step of the recipe automatically
+            final boolean isTabletMode = getContext().getResources().getBoolean(R.bool.tablet_mode);
+            if (isTabletMode) mViewModel.setChosenStep(recipeView.mSteps.get(0));
         });
     }
 

@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -46,14 +47,19 @@ public class DetailFragment extends Fragment implements Player.EventListener {
 
     public static final String EXTRA_IS_RESTORING = "me.worric.bakingtime.is_restoring";
 
-    @Nullable @BindView(R.id.tv_detail_step_instructions)
-    protected TextView mInstructions;
-    @BindView(R.id.detail_exoplayer)
-    protected PlayerView mPlayerView;
     @Inject
     protected ViewModelProvider.Factory mFactory;
     @Inject
     protected ExtractorMediaSource.Factory mMediaSourceFactory;
+    @Nullable @BindView(R.id.tv_detail_step_instructions)
+    protected TextView mInstructions;
+    @Nullable @BindView(R.id.btn_detail_previous)
+    protected Button mPreciousButton;
+    @Nullable @BindView(R.id.btn_detail_next)
+    protected Button mNextButton;
+    @BindView(R.id.detail_exoplayer)
+    protected PlayerView mPlayerView;
+
     private BakingViewModel mViewModel;
     private Unbinder mUnbinder;
     private SimpleExoPlayer mExoPlayer;
@@ -76,12 +82,14 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     @Optional
     @OnClick(R.id.btn_detail_next)
     protected void handleNextButtonClick(View v) {
+        if (!mPreciousButton.isEnabled()) mPreciousButton.setEnabled(true);
         mViewModel.goToNextStep();
     }
 
     @Optional
     @OnClick(R.id.btn_detail_previous)
     protected void handlePreviousButtonClick(View v) {
+        if (!mNextButton.isEnabled()) mNextButton.setEnabled(true);
         mViewModel.goToPreviousStep();
     }
 
@@ -101,9 +109,9 @@ public class DetailFragment extends Fragment implements Player.EventListener {
 
                 int index = stepWithSteps.getIndexOfCurrentStep();
                 if (index == 0) {
-                    Timber.d("Disable PREVIOUS button");
+                    mPreciousButton.setEnabled(false);
                 } else if (index == stepWithSteps.currentRecipeSteps.size() - 1) {
-                    Timber.d("Disable NEXT button");
+                    mNextButton.setEnabled(false);
                 }
             }
 
