@@ -3,6 +3,7 @@ package me.worric.bakingtime.ui.detail;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,8 +27,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 
 import javax.inject.Inject;
 
@@ -36,6 +35,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Optional;
 import butterknife.Unbinder;
+import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
@@ -46,14 +46,22 @@ public class DetailFragment extends Fragment implements Player.EventListener {
 
     @Nullable @BindView(R.id.tv_detail_step_instructions)
     protected TextView mInstructions;
-    @Nullable @BindView(R.id.detail_exoplayer)
+    @BindView(R.id.detail_exoplayer)
     protected PlayerView mPlayerView;
     @Inject
     protected ViewModelProvider.Factory mFactory;
+    @Inject
+    protected ExtractorMediaSource.Factory mMediaSourceFactory;
     private BakingViewModel mViewModel;
     private Unbinder mUnbinder;
     private SimpleExoPlayer mExoPlayer;
     private boolean mVideoChanged = false;
+
+    @Override
+    public void onAttach(Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -111,10 +119,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
 
     private void loadMediaForPlayer(String videoUrl, long playerPosition) {
         Uri videoUri = TextUtils.isEmpty(videoUrl) ? null : Uri.parse(videoUrl);
-        String userAgent = Util.getUserAgent(getContext(), "Baking-Time");
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(
-                new DefaultDataSourceFactory(getContext(), userAgent))
-                .createMediaSource(videoUri, null, null);
+        MediaSource mediaSource = mMediaSourceFactory.createMediaSource(videoUri, null, null);
         mExoPlayer.prepare(mediaSource);
         mExoPlayer.setPlayWhenReady(true);
         if (playerPosition != 0L) mExoPlayer.seekTo(playerPosition);
