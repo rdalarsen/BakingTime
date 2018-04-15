@@ -30,4 +30,8 @@ Aside from the core project requirements set forth by Udacity, this project stan
 - ButterKnife viewbinding
 - Glide image loading
 - Retrofit + Gson for fetching network data as well as JSON deserialization
-- Java 8 language features like lambda's and method references 
+- Java 8 language features like lambda's and method references
+
+#### Attributions
+
+- General advice on how to use ExoPlayer from [this article](https://android.jlelse.eu/android-exoplayer-starters-guide-6350433f256c)
