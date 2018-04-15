@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.data.models.Step;
-import me.worric.bakingtime.data.models.StepAndSteps;
+import me.worric.bakingtime.data.models.StepWithSteps;
 import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.di.ActivityScope;
 import timber.log.Timber;
@@ -25,8 +25,8 @@ public class BakingViewModel extends ViewModel {
 
     private final MutableLiveData<Long> mRecipeId;
     private final MutableLiveData<Step> mChosenStep;
+    private final MediatorLiveData<RecipeView> mChosenRecipe;
     private final Repository<RecipeView> mRecipeRepository;
-    private final MediatorLiveData<RecipeView> mActiveRecipeMediator;
 
     @Inject
     public BakingViewModel(Repository<RecipeView> recipeRepository) {
@@ -34,27 +34,38 @@ public class BakingViewModel extends ViewModel {
         mChosenStep = new MutableLiveData<>();
         mRecipeRepository = recipeRepository;
         Timber.e("Repository hashCode: %d", mRecipeRepository.hashCode());
-        mActiveRecipeMediator = new MediatorLiveData<>();
-        mActiveRecipeMediator.addSource(
+        mChosenRecipe = new MediatorLiveData<>();
+        mChosenRecipe.addSource(
                 Transformations.switchMap(mRecipeId, mRecipeRepository::findOneById),
-                recipeView -> {
-                    Timber.d("Observation updated. Id of activeRecipe: %d",
-                            recipeView.mRecipe.getId());
-                    mActiveRecipeMediator.setValue(recipeView);
-                }
-        );
+                mChosenRecipe::setValue);
     }
 
-    public LiveData<List<RecipeView>> getRecipes() {
+    public LiveData<List<RecipeView>> getAllRecipes() {
         return mRecipeRepository.findAll();
     }
 
     public LiveData<RecipeView> getChosenRecipe() {
-        return mActiveRecipeMediator;
+        return mChosenRecipe;
     }
 
     public void setChosenRecipe(Long recipeId) {
-        if (mRecipeId.getValue() == null) mRecipeId.setValue(recipeId);
+        if (mRecipeId.getValue() == null) {
+            mRecipeId.setValue(recipeId);
+        }
+    }
+
+    public void setChosenStep(Step step) {
+        if (!step.equals(mChosenStep.getValue())){
+            mChosenStep.setValue(step);
+        } else {
+            Timber.e("Steps are identical; not updating");
+        }
+    }
+
+    public LiveData<StepWithSteps> getChosenStepWithSteps() {
+        return Transformations.switchMap(mChosenStep, (Step step) ->
+                Transformations.map(mChosenRecipe, (RecipeView recepe) ->
+                        StepWithSteps.newInstance(step, recepe.mSteps)));
     }
 
     public void goToNextStep() {
@@ -66,35 +77,17 @@ public class BakingViewModel extends ViewModel {
     }
 
     private void goToNextOrPrevious(int nextOrPrevious) {
-        RecipeView recipeView = mActiveRecipeMediator.getValue();
+        RecipeView recipeView = mChosenRecipe.getValue();
         Step chosenStep = mChosenStep.getValue();
+
         if (recipeView != null && recipeView.mSteps != null && chosenStep != null) {
-            int index = recipeView.mSteps.indexOf(chosenStep);
+            int index = recipeView.getIndexOfStep(chosenStep);
+
             if (nextOrPrevious == NEXT && index < (recipeView.mSteps.size() - 1)) {
                 mChosenStep.setValue(recipeView.mSteps.get(index + 1));
             } else if (nextOrPrevious == PREVIOUS && index > 0) {
                 mChosenStep.setValue(recipeView.mSteps.get(index - 1));
             }
         }
-    }
-
-    public void setChosenStep(Step step) {
-        mChosenStep.setValue(step);
-    }
-
-    public LiveData<Step> getChosenStep() {
-        return mChosenStep;
-    }
-
-    public LiveData<StepAndSteps> getStepAndSteps() {
-        return Transformations.map(
-                mActiveRecipeMediator, recipeView ->
-                        StepAndSteps.newInstance(mChosenStep.getValue(), recipeView.mSteps));
-    }
-
-    public LiveData<StepAndSteps> getMoreSteps() {
-        return Transformations.switchMap(mChosenStep, (Step step) ->
-                Transformations.map(mActiveRecipeMediator, (RecipeView recepe) ->
-                        StepAndSteps.newInstance(step, recepe.mSteps)));
     }
 }

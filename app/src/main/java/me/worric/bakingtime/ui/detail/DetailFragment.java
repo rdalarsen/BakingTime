@@ -44,6 +44,8 @@ import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_PLAYER_STATE;
 
 public class DetailFragment extends Fragment implements Player.EventListener {
 
+    public static final String EXTRA_IS_RESTORING = "me.worric.bakingtime.is_restoring";
+
     @Nullable @BindView(R.id.tv_detail_step_instructions)
     protected TextView mInstructions;
     @BindView(R.id.detail_exoplayer)
@@ -55,7 +57,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     private BakingViewModel mViewModel;
     private Unbinder mUnbinder;
     private SimpleExoPlayer mExoPlayer;
-    private boolean mVideoChanged = false;
+    private boolean mIsRestoring = false;
 
     @Override
     public void onAttach(Context context) {
@@ -74,47 +76,61 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     @Optional
     @OnClick(R.id.btn_detail_next)
     protected void handleNextButtonClick(View v) {
-        mVideoChanged = true;
         mViewModel.goToNextStep();
     }
 
     @Optional
     @OnClick(R.id.btn_detail_previous)
     protected void handlePreviousButtonClick(View v) {
-        mVideoChanged = true;
         mViewModel.goToPreviousStep();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Timber.e("onCreateView: Called!");
         super.onViewCreated(view, savedInstanceState);
+        checkIfRestoring(savedInstanceState);
         initializePlayer();
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
-        mViewModel.getMoreSteps().observe(this, stepAndSteps -> {
-            Timber.e("step ID: %d, and steps toString: %s",
-                    stepAndSteps.currentStep.getId(), stepAndSteps.steps.toString());
+        mViewModel.getChosenStepWithSteps().observe(this, stepWithSteps -> {
+            Timber.e("currentStep ID: %d, and currentRecipeSteps toString: %s",
+                    stepWithSteps.currentStep.getId(), stepWithSteps.currentRecipeSteps.toString());
 
-            boolean isLandscapeMode = getContext().getResources().getBoolean(R.bool.landscape_mode);
-            Timber.d("Landscape mode: %s", isLandscapeMode);
+            // Every configuration except phone landscape
+            if (!isPhoneLandscape()) {
+                mInstructions.setText(stepWithSteps.currentStep.getDescription());
 
-            if (!isLandscapeMode) {
-                mInstructions.setText(stepAndSteps.currentStep.getDescription());
-
-                int index = stepAndSteps.steps.indexOf(stepAndSteps.currentStep);
+                int index = stepWithSteps.getIndexOfCurrentStep();
                 if (index == 0) {
                     Timber.d("Disable PREVIOUS button");
-                } else if (index == stepAndSteps.steps.size() - 1) {
+                } else if (index == stepWithSteps.currentRecipeSteps.size() - 1) {
                     Timber.d("Disable NEXT button");
                 }
             }
 
-            String videoUrl = stepAndSteps.currentStep.getVideoURL();
+            String videoUrl = stepWithSteps.currentStep.getVideoURL();
+
             long playerPosition = 0L;
-            if (savedInstanceState != null && !mVideoChanged) playerPosition = savedInstanceState
-                    .getLong(EXTRA_PLAYER_STATE, 0L);
+            if (mIsRestoring && savedInstanceState != null) {
+                playerPosition = savedInstanceState.getLong(EXTRA_PLAYER_STATE, 0L);
+                mIsRestoring = false;
+            }
             loadMediaForPlayer(videoUrl, playerPosition);
         });
+    }
+
+    private boolean isPhoneLandscape() {
+        final boolean isLandscapeMode = getContext().getResources().getBoolean(R.bool.landscape_mode);
+        final boolean isTabletMode = getContext().getResources().getBoolean(R.bool.tablet_mode);
+
+        Timber.d("Landscape mode: %s, tablet mode is: %s", isLandscapeMode, isTabletMode);
+
+        return isLandscapeMode && !isTabletMode;
+    }
+
+    private void checkIfRestoring(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            mIsRestoring = savedInstanceState.getBoolean(EXTRA_IS_RESTORING);
+        }
     }
 
     private void loadMediaForPlayer(String videoUrl, long playerPosition) {
@@ -138,6 +154,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putLong(EXTRA_PLAYER_STATE, mExoPlayer.getCurrentPosition());
+        outState.putBoolean(EXTRA_IS_RESTORING, true);
     }
 
     private void releasePlayer() {
@@ -161,16 +178,16 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         switch (playbackState) {
             case Player.STATE_IDLE:
-                Timber.d("Player is: %d", Player.STATE_IDLE);
+                Timber.d("Player is IDLE: %d", Player.STATE_IDLE);
                 break;
             case Player.STATE_READY:
-                Timber.d("Player is: %d", Player.STATE_READY);
+                Timber.d("Player is READY: %d", Player.STATE_READY);
                 break;
             case Player.STATE_ENDED:
-                Timber.d("Player is: %d", Player.STATE_ENDED);
+                Timber.d("Player is ENDED: %d", Player.STATE_ENDED);
                 break;
             case Player.STATE_BUFFERING:
-                Timber.d("Player is: %d", Player.STATE_BUFFERING);
+                Timber.d("Player is BUFFERING: %d", Player.STATE_BUFFERING);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown state: " + playbackState);

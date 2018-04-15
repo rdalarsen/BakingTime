@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewModel(final Bundle savedInstanceState) {
         mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
-        mViewModel.getRecipes().observe(this, recipesViews -> {
+        mViewModel.getAllRecipes().observe(this, recipesViews -> {
             if (recipesViews == null) return;
             mAdapter.swapData(recipesViews);
             restoreLayoutManagerState(savedInstanceState);

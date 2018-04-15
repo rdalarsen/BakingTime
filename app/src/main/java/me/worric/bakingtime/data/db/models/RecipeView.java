@@ -2,6 +2,7 @@ package me.worric.bakingtime.data.db.models;
 
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Relation;
+import android.support.annotation.NonNull;
 
 import java.util.List;
 
@@ -19,5 +20,9 @@ public class RecipeView {
 
     @Relation(parentColumn = "id", entityColumn = "recipe_id")
     public List<Ingredient> mIngredients;
+
+    public int getIndexOfStep(@NonNull Step step) {
+        return mSteps.indexOf(step);
+    }
 
 }

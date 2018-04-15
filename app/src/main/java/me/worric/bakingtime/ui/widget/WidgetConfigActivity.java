@@ -72,7 +72,7 @@ public class WidgetConfigActivity extends AppCompatActivity {
 
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
-        mViewModel.getRecipes().observe(this, recipesViews ->
+        mViewModel.getAllRecipes().observe(this, recipesViews ->
                 mAdapter.swapData(recipesViews));
     }
 
