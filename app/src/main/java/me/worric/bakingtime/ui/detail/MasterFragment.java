@@ -14,11 +14,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
@@ -29,20 +31,21 @@ import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_LAYOUT_MANAGER_STATE;
 
 public class MasterFragment extends Fragment {
 
+    private static final String EXTRA_SHOW_INGREDIENTS = "me.worric.bakingtime.extra_show_ingredients";
+
     private Unbinder mUnbinder;
 
     @BindView(R.id.rv_master_fragment_steps) protected RecyclerView mStepsList;
+    @BindView(R.id.btn_detail_swap_steps_ingredients) protected Button mToggleIngredients;
 
     @Inject
     protected ViewModelProvider.Factory mFactory;
     private BakingViewModel mViewModel;
-    private StepsAdapter mAdapter;
+    private StepsAdapter mStepsAdapter;
+    private IngredientsAdapter mIngredientsAdapter;
     private LinearLayoutManager mManager;
     private StepClickListener mListener;
-
-    public MasterFragment() {
-        // Required empty public constructor
-    }
+    private boolean mIsShowingIngredients = false;
 
     @Override
     public void onAttach(Context context) {
@@ -67,21 +70,51 @@ public class MasterFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (savedInstanceState != null) {
+            mIsShowingIngredients = savedInstanceState.getBoolean(EXTRA_SHOW_INGREDIENTS, false);
+        }
+
+        updateButtonText();
 
         setupRecyclerView();
 
         setupViewModel(savedInstanceState);
     }
 
+    private void updateButtonText() {
+        if (mIsShowingIngredients) {
+            mToggleIngredients.setText(R.string.btn_detail_show_steps);
+        } else {
+            mToggleIngredients.setText(R.string.btn_detail_show_ingredients);
+        }
+    }
+
+    @OnClick(R.id.btn_detail_swap_steps_ingredients)
+    public void handleToggleIngredientsClick(View view) {
+        if (mIsShowingIngredients) {
+            mStepsList.setAdapter(mStepsAdapter);
+            mIsShowingIngredients = false;
+            updateButtonText();
+        } else {
+            mStepsList.setAdapter(mIngredientsAdapter);
+            mIsShowingIngredients = true;
+            updateButtonText();
+        }
+    }
+
     private void setupViewModel(final Bundle savedInstanceState) {
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
-            mAdapter.swapSteps(recipeView.mSteps);
+            if (recipeView == null) return;
+
+            mStepsAdapter.swapSteps(recipeView.mSteps);
+            mIngredientsAdapter.swapIngredients(recipeView.mIngredients);
             restoreLayoutManagerState(savedInstanceState);
 
+            // TODO possible bug
             // If we're in tablet mode, load the first step of the recipe automatically
             final boolean isTabletMode = getContext().getResources().getBoolean(R.bool.tablet_mode);
-            if (isTabletMode) mViewModel.setChosenStep(recipeView.mSteps.get(0));
+            if (isTabletMode && savedInstanceState == null) mViewModel.setChosenStep(recipeView.mSteps.get(0));
         });
     }
 
@@ -93,17 +126,24 @@ public class MasterFragment extends Fragment {
         mStepsList.addItemDecoration(new DividerItemDecoration(getContext(),
                 DividerItemDecoration.VERTICAL));
 
-        mAdapter = new StepsAdapter((step, position) -> {
+        mIngredientsAdapter = new IngredientsAdapter();
+        mStepsAdapter = new StepsAdapter((step, position) -> {
             mViewModel.setChosenStep(step);
             mListener.onStepClick(step, position);
         });
-        mStepsList.setAdapter(mAdapter);
+
+        if (mIsShowingIngredients) {
+            mStepsList.setAdapter(mIngredientsAdapter);
+        } else {
+            mStepsList.setAdapter(mStepsAdapter);
+        }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         saveLayoutManagerState(outState);
+        outState.putBoolean(EXTRA_SHOW_INGREDIENTS, mIsShowingIngredients);
     }
 
     @Override
@@ -122,6 +162,10 @@ public class MasterFragment extends Fragment {
         Parcelable savedLayoutManagerState = savedInstanceState
                 .getParcelable(EXTRA_LAYOUT_MANAGER_STATE);
         mManager.onRestoreInstanceState(savedLayoutManagerState);
+    }
+
+    public MasterFragment() {
+        // Required empty public constructor
     }
 
     public interface StepClickListener {

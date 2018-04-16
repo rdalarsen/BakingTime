@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ui.detail.DetailActivity">
+
+    <Button
+        android:id="@+id/btn_detail_swap_steps_ingredients"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:text="Show ingredients" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_master_fragment_steps"
@@ -12,4 +20,4 @@
         android:layout_height="match_parent"
         tools:listitem="@layout/list_item_master"/>
 
-</FrameLayout>
+</LinearLayout>

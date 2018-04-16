@@ -38,7 +38,6 @@ import butterknife.Optional;
 import butterknife.Unbinder;
 import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
-import me.worric.bakingtime.ui.util.UiUtils;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
@@ -55,7 +54,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     @Nullable @BindView(R.id.tv_detail_step_instructions)
     protected TextView mInstructions;
     @Nullable @BindView(R.id.btn_detail_previous)
-    protected Button mPreciousButton;
+    protected Button mPreviousButton;
     @Nullable @BindView(R.id.btn_detail_next)
     protected Button mNextButton;
     @BindView(R.id.detail_exoplayer)
@@ -65,6 +64,8 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     private Unbinder mUnbinder;
     private SimpleExoPlayer mExoPlayer;
     private boolean mIsRestoring = false;
+    private boolean mIsLandscapeMode;
+    private boolean mIsTabletMode;
 
     @Override
     public void onAttach(Context context) {
@@ -77,13 +78,16 @@ public class DetailFragment extends Fragment implements Player.EventListener {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_detail, container, false);
         mUnbinder = ButterKnife.bind(this, v);
+
+        mIsLandscapeMode = getContext().getResources().getBoolean(R.bool.landscape_mode);
+        mIsTabletMode = getActivity().getResources().getBoolean(R.bool.tablet_mode);
         return v;
     }
 
     @Optional
     @OnClick(R.id.btn_detail_next)
     protected void handleNextButtonClick(View v) {
-        if (!mPreciousButton.isEnabled()) mPreciousButton.setEnabled(true);
+        if (!mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
         mViewModel.goToNextStep();
     }
 
@@ -97,22 +101,28 @@ public class DetailFragment extends Fragment implements Player.EventListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         setIsRestoring(savedInstanceState);
+
         initializePlayer();
+
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
         mViewModel.getChosenStepWithSteps().observe(this, stepWithSteps -> {
+            if (stepWithSteps == null) return;
             Timber.e("currentStep ID: %d, and currentRecipeSteps toString: %s",
                     stepWithSteps.currentStep.getId(), stepWithSteps.currentRecipeSteps.toString());
 
             // Every configuration except phone landscape
-            if (!UiUtils.isPhoneLandscape(getContext())) {
+            if (!isPhoneLandscape()) {
                 mInstructions.setText(stepWithSteps.currentStep.getDescription());
 
-                int index = stepWithSteps.getIndexOfCurrentStep();
-                if (index == 0) {
-                    mPreciousButton.setEnabled(false);
-                } else if (index == stepWithSteps.currentRecipeSteps.size() - 1) {
-                    mNextButton.setEnabled(false);
+                if (!mIsTabletMode) {
+                    int index = stepWithSteps.getIndexOfCurrentStep();
+                    if (index == 0) {
+                        mPreviousButton.setEnabled(false);
+                    } else if (index == stepWithSteps.currentRecipeSteps.size() - 1) {
+                        mNextButton.setEnabled(false);
+                    }
                 }
             }
 
@@ -125,6 +135,11 @@ public class DetailFragment extends Fragment implements Player.EventListener {
             }
             loadMediaForPlayer(videoUrl, playerPosition);
         });
+    }
+
+    private boolean isPhoneLandscape() {
+        Timber.d("Landscape mode: %s, tablet mode is: %s", mIsLandscapeMode, mIsTabletMode);
+        return mIsLandscapeMode && !mIsTabletMode;
     }
 
     private void setIsRestoring(@Nullable Bundle savedInstanceState) {

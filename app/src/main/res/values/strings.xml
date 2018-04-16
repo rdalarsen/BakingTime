@@ -17,4 +17,6 @@
     <string name="widget_ingredient_format_string">%s: %s %s</string>
     <string name="detail_fragment_button_next">Next</string>
     <string name="detail_fragment_button_previous">Previous</string>
+    <string name="btn_detail_show_steps">Show Steps</string>
+    <string name="btn_detail_show_ingredients">Show Ingredients</string>
 </resources>
