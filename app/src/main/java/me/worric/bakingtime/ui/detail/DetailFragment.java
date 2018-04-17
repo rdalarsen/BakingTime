@@ -16,17 +16,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerView;
 
 import javax.inject.Inject;
@@ -43,7 +38,7 @@ import timber.log.Timber;
 
 import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_PLAYER_STATE;
 
-public class DetailFragment extends Fragment implements Player.EventListener {
+public class DetailFragment extends Fragment {
 
     public static final String EXTRA_IS_RESTORING = "me.worric.bakingtime.is_restoring";
 
@@ -161,7 +156,7 @@ public class DetailFragment extends Fragment implements Player.EventListener {
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(),
                     new DefaultTrackSelector());
             mPlayerView.setPlayer(mExoPlayer);
-            mExoPlayer.addListener(this);
+            mExoPlayer.addListener(new PlayerEventListener());
         }
     }
 
@@ -189,70 +184,25 @@ public class DetailFragment extends Fragment implements Player.EventListener {
         // Required empty public constructor
     }
 
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        switch (playbackState) {
-            case Player.STATE_IDLE:
-                Timber.d("Player is IDLE: %d", Player.STATE_IDLE);
-                break;
-            case Player.STATE_READY:
-                Timber.d("Player is READY: %d", Player.STATE_READY);
-                break;
-            case Player.STATE_ENDED:
-                Timber.d("Player is ENDED: %d", Player.STATE_ENDED);
-                break;
-            case Player.STATE_BUFFERING:
-                Timber.d("Player is BUFFERING: %d", Player.STATE_BUFFERING);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown state: " + playbackState);
+    private class PlayerEventListener extends Player.DefaultEventListener {
+        @Override
+        public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            switch (playbackState) {
+                case Player.STATE_IDLE:
+                    Timber.d("Player is IDLE: %d", Player.STATE_IDLE);
+                    break;
+                case Player.STATE_READY:
+                    Timber.d("Player is READY: %d", Player.STATE_READY);
+                    break;
+                case Player.STATE_ENDED:
+                    Timber.d("Player is ENDED: %d", Player.STATE_ENDED);
+                    break;
+                case Player.STATE_BUFFERING:
+                    Timber.d("Player is BUFFERING: %d", Player.STATE_BUFFERING);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown state: " + playbackState);
+            }
         }
-    }
-
-    // -------------- unused Player.EventListener callback methods -----------------------
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-
-    }
-
-    @Override
-    public void onRepeatModeChanged(int repeatMode) {
-
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException error) {
-
-    }
-
-    @Override
-    public void onPositionDiscontinuity(int reason) {
-
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-    }
-
-    @Override
-    public void onSeekProcessed() {
-
     }
 }
