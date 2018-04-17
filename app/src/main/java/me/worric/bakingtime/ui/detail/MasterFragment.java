@@ -20,21 +20,24 @@ import me.worric.bakingtime.ui.common.BaseFragment;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
-import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_LAYOUT_MANAGER_STATE;
-
 public class MasterFragment extends BaseFragment {
 
     private static final String EXTRA_SHOW_INGREDIENTS = "me.worric.bakingtime.extra_show_ingredients";
+    private static final String EXTRA_STEPS_LIST_STATE = "me.worric.bakingtime.extra_steps_list_state";
+    private static final String EXTRA_INGREDIENTS_LIST_STATE = "me.worric.bakingtime.extra_ingredients_list_state";
 
-    @BindView(R.id.rv_master_fragment_steps) protected RecyclerView mStepsList;
-    @BindView(R.id.btn_detail_swap_steps_ingredients) protected Button mToggleIngredients;
+    @BindView(R.id.rv_master_fragment_steps) protected RecyclerView mContentList;
+    @BindView(R.id.btn_detail_swap_steps_ingredients) protected Button mToggleContentButton;
 
     private BakingViewModel mViewModel;
     private StepsAdapter mStepsAdapter;
     private IngredientsAdapter mIngredientsAdapter;
     private LinearLayoutManager mManager;
     private StepClickListener mListener;
+
     private boolean mIsShowingIngredients = false;
+    private Parcelable mStepListState;
+    private Parcelable mIngredientsListState;
 
     // Lifecycle callbacks
 
@@ -55,86 +58,34 @@ public class MasterFragment extends BaseFragment {
         Timber.d("OnViewCreated: called");
         if (savedInstanceState != null) {
             mIsShowingIngredients = savedInstanceState.getBoolean(EXTRA_SHOW_INGREDIENTS, false);
+            mIngredientsListState = savedInstanceState.getParcelable(EXTRA_INGREDIENTS_LIST_STATE);
+            mStepListState = savedInstanceState.getParcelable(EXTRA_STEPS_LIST_STATE);
         }
 
         updateButtonText();
 
         setupRecyclerView();
 
-        setupViewModel(savedInstanceState);
+        setupViewModel(savedInstanceState == null);
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Timber.d("onSaveInstanceState: called");
-        saveLayoutManagerState(outState);
+        Parcelable currentState = mManager.onSaveInstanceState();
+        if (mIsShowingIngredients) {
+            outState.putParcelable(EXTRA_INGREDIENTS_LIST_STATE, currentState);
+            if (mStepListState != null) {
+                outState.putParcelable(EXTRA_STEPS_LIST_STATE, mStepListState);
+            }
+        } else {
+            outState.putParcelable(EXTRA_STEPS_LIST_STATE, currentState);
+            if (mIngredientsListState != null) {
+                outState.putParcelable(EXTRA_INGREDIENTS_LIST_STATE, mIngredientsListState);
+            }
+        }
         outState.putBoolean(EXTRA_SHOW_INGREDIENTS, mIsShowingIngredients);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Timber.d("onDestroy: called");
-    }
-
-    // Helper/onClick methods
-
-    @OnClick(R.id.btn_detail_swap_steps_ingredients)
-    public void handleToggleIngredientsClick(View view) {
-        if (mIsShowingIngredients) {
-            mStepsList.setAdapter(mStepsAdapter);
-            mIsShowingIngredients = false;
-            updateButtonText();
-        } else {
-            mStepsList.setAdapter(mIngredientsAdapter);
-            mIsShowingIngredients = true;
-            updateButtonText();
-        }
-    }
-
-    private void updateButtonText() {
-        if (mIsShowingIngredients) {
-            mToggleIngredients.setText(R.string.btn_detail_show_steps);
-        } else {
-            mToggleIngredients.setText(R.string.btn_detail_show_ingredients);
-        }
-    }
-
-    private void setupRecyclerView() {
-        mManager = new LinearLayoutManager(getContext(),
-                LinearLayoutManager.VERTICAL, false);
-        mStepsList.setLayoutManager(mManager);
-
-        mStepsList.addItemDecoration(new DividerItemDecoration(getContext(),
-                DividerItemDecoration.VERTICAL));
-
-        mIngredientsAdapter = new IngredientsAdapter();
-        mStepsAdapter = new StepsAdapter((step, position) -> {
-            mViewModel.setChosenStep(step);
-            mListener.onStepClick(step, position);
-        });
-
-        if (mIsShowingIngredients) {
-            mStepsList.setAdapter(mIngredientsAdapter);
-        } else {
-            mStepsList.setAdapter(mStepsAdapter);
-        }
-    }
-
-    private void setupViewModel(final Bundle savedInstanceState) {
-        mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
-        mViewModel.getChosenRecipe().observe(this, recipeView -> {
-            Timber.d("calling observe method");
-            if (recipeView == null) return;
-
-            mStepsAdapter.swapSteps(recipeView.mSteps);
-            mIngredientsAdapter.swapIngredients(recipeView.mIngredients);
-            restoreLayoutManagerState(savedInstanceState);
-
-            // If we're in tablet mode, load the first step of the recipe automatically
-            if (mIsTabletMode && savedInstanceState == null) mViewModel.setChosenStep(recipeView.mSteps.get(0));
-        });
     }
 
     @Override
@@ -149,16 +100,78 @@ public class MasterFragment extends BaseFragment {
         Timber.d("onResume: called");
     }
 
-    private void saveLayoutManagerState(final Bundle outState) {
-        Parcelable savedLayoutManagerState = mManager.onSaveInstanceState();
-        outState.putParcelable(EXTRA_LAYOUT_MANAGER_STATE, savedLayoutManagerState);
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Timber.d("onDestroy: called");
     }
 
-    private void restoreLayoutManagerState(final Bundle savedInstanceState) {
-        if (savedInstanceState == null) return;
-        Parcelable savedLayoutManagerState = savedInstanceState
-                .getParcelable(EXTRA_LAYOUT_MANAGER_STATE);
-        mManager.onRestoreInstanceState(savedLayoutManagerState);
+    // Helper/onClick methods
+
+    @OnClick(R.id.btn_detail_swap_steps_ingredients)
+    public void handleToggleIngredientsClick(View view) {
+        if (mIsShowingIngredients) {
+            mIngredientsListState = mManager.onSaveInstanceState();
+            mContentList.setAdapter(mStepsAdapter);
+            if (mStepListState != null) mManager.onRestoreInstanceState(mStepListState);
+            mIsShowingIngredients = false;
+            updateButtonText();
+        } else {
+            mStepListState = mManager.onSaveInstanceState();
+            mContentList.setAdapter(mIngredientsAdapter);
+            if (mIngredientsListState != null) mManager.onRestoreInstanceState(mIngredientsListState);
+            mIsShowingIngredients = true;
+            updateButtonText();
+        }
+    }
+
+    private void updateButtonText() {
+        if (mIsShowingIngredients) {
+            mToggleContentButton.setText(R.string.btn_detail_show_steps);
+        } else {
+            mToggleContentButton.setText(R.string.btn_detail_show_ingredients);
+        }
+    }
+
+    private void setupRecyclerView() {
+        mManager = new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false);
+        mContentList.setLayoutManager(mManager);
+
+        mContentList.addItemDecoration(new DividerItemDecoration(getContext(),
+                DividerItemDecoration.VERTICAL));
+
+        mIngredientsAdapter = new IngredientsAdapter();
+        mStepsAdapter = new StepsAdapter((step, position) -> {
+            mViewModel.setChosenStep(step);
+            mListener.onStepClick(step, position);
+        });
+
+        if (mIsShowingIngredients) {
+            mContentList.setAdapter(mIngredientsAdapter);
+        } else {
+            mContentList.setAdapter(mStepsAdapter);
+        }
+    }
+
+    private void setupViewModel(final boolean firstRun) {
+        mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
+        mViewModel.getChosenRecipe().observe(this, recipeView -> {
+            Timber.d("calling observe method");
+            if (recipeView == null) return;
+
+            mStepsAdapter.swapSteps(recipeView.mSteps);
+            mIngredientsAdapter.swapIngredients(recipeView.mIngredients);
+
+            if (mIsShowingIngredients) {
+                if (mIngredientsListState != null) mManager.onRestoreInstanceState(mIngredientsListState);
+            } else {
+                if (mStepListState != null) mManager.onRestoreInstanceState(mStepListState);
+            }
+
+            // If we're in tablet mode, load the first step of the recipe automatically
+            if (mIsTabletMode && firstRun) mViewModel.setChosenStep(recipeView.mSteps.get(0));
+        });
     }
 
     // Base class methods
