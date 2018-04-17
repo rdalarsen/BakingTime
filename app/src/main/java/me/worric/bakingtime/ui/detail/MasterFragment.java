@@ -67,6 +67,7 @@ public class MasterFragment extends BaseFragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        Timber.d("onSaveInstanceState: called");
         saveLayoutManagerState(outState);
         outState.putBoolean(EXTRA_SHOW_INGREDIENTS, mIsShowingIngredients);
     }

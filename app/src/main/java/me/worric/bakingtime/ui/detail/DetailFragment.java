@@ -48,7 +48,12 @@ public class DetailFragment extends BaseFragment {
 
     private BakingViewModel mViewModel;
     private SimpleExoPlayer mExoPlayer;
-    private boolean mIsRestoring = false;
+
+    private boolean mChangePressed = false;
+    private long mCurrentPlayerPosition = 0L;
+    private String mCurrentUrl;
+    private String mCurrentInstructions;
+    private int mCurrentStepIndex;
 
     // Lifecycle callbacks
 
@@ -57,46 +62,75 @@ public class DetailFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         Timber.d("OnViewCreated: called");
 
-        setIsRestoring(savedInstanceState);
-
-        initializePlayer();
+        if (savedInstanceState != null) {
+            mCurrentPlayerPosition = savedInstanceState.getLong(EXTRA_PLAYER_STATE, 0L);
+            mCurrentUrl = savedInstanceState.getString("key_current_url", "");
+            mCurrentInstructions = savedInstanceState.getString("key_current_instructions", "");
+            mCurrentStepIndex = savedInstanceState.getInt("key_current_step_index", -1);
+        }
 
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
         mViewModel.getChosenStepWithSteps().observe(this, stepWithSteps -> {
+            Timber.d("Observe method called");
             if (stepWithSteps == null) return;
-            Timber.e("currentStep ID: %d, and currentRecipeSteps toString: %s",
-                    stepWithSteps.currentStep.getId(), stepWithSteps.currentRecipeSteps.toString());
 
-            // Every configuration except phone landscape
-            if (!isPhoneLandscape()) {
-                mInstructions.setText(stepWithSteps.currentStep.getDescription());
+            // TODO: Create data model for this class
+            mCurrentUrl = stepWithSteps.currentStep.getVideoURL();
+            mCurrentStepIndex = stepWithSteps.getIndexOfCurrentStep();
+            mCurrentInstructions = stepWithSteps.currentStep.getDescription();
 
-                if (!mIsTabletMode) {
-                    int index = stepWithSteps.getIndexOfCurrentStep();
-                    if (index == 0) {
-                        mPreviousButton.setEnabled(false);
-                    } else if (index == stepWithSteps.currentRecipeSteps.size() - 1) {
-                        mNextButton.setEnabled(false);
-                    }
+            if (mInstructions != null) mInstructions.setText(mCurrentInstructions);
+            if (mPreviousButton != null && mNextButton != null) {
+                int index = stepWithSteps.getIndexOfCurrentStep();
+                if (index == 0) {
+                    mPreviousButton.setEnabled(false);
+                } else if (index == stepWithSteps.currentRecipeSteps.size() - 1) {
+                    mNextButton.setEnabled(false);
                 }
             }
 
-            String videoUrl = stepWithSteps.currentStep.getVideoURL();
-
-            long playerPosition = 0L;
-            if (mIsRestoring && savedInstanceState != null) {
-                playerPosition = savedInstanceState.getLong(EXTRA_PLAYER_STATE, 0L);
-                mIsRestoring = false;
+            if (mExoPlayer == null) {
+                Timber.e("ExoPlayer is null; returning");
+                return;
             }
-            loadMediaForPlayer(videoUrl, playerPosition);
+
+            if (mChangePressed || mIsTabletMode) {
+                loadMediaForPlayer(mCurrentUrl, 0L);
+                mChangePressed = false;
+            }
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Timber.d("onStart: called.");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Timber.d("onResume: called. Initializing Player");
+        initializePlayer();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Timber.d("onPause: called. Saving position and releasing player");
+        releasePlayer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Timber.d("onStop: called.");
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         Timber.d("onDestroyView: called");
-        releasePlayer();
     }
 
     @Override
@@ -109,8 +143,12 @@ public class DetailFragment extends BaseFragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Timber.d("onSaveInstanceState: called");
-        outState.putLong(EXTRA_PLAYER_STATE, mExoPlayer.getCurrentPosition());
+        outState.putLong(EXTRA_PLAYER_STATE, mCurrentPlayerPosition);
         outState.putBoolean(EXTRA_IS_RESTORING, true);
+
+        outState.putString("key_current_url", mCurrentUrl);
+        outState.putString("key_current_instructions", mCurrentInstructions);
+        outState.putInt("key_current_step_index", mCurrentStepIndex);
     }
 
     // Helper/onClick methods
@@ -119,6 +157,7 @@ public class DetailFragment extends BaseFragment {
     @OnClick(R.id.btn_detail_next)
     protected void handleNextButtonClick(View v) {
         if (!mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
+        mChangePressed = true;
         mViewModel.goToNextStep();
     }
 
@@ -126,17 +165,8 @@ public class DetailFragment extends BaseFragment {
     @OnClick(R.id.btn_detail_previous)
     protected void handlePreviousButtonClick(View v) {
         if (!mNextButton.isEnabled()) mNextButton.setEnabled(true);
+        mChangePressed = true;
         mViewModel.goToPreviousStep();
-    }
-
-    private boolean isPhoneLandscape() {
-        return mIsLandscapeMode && !mIsTabletMode;
-    }
-
-    private void setIsRestoring(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            mIsRestoring = savedInstanceState.getBoolean(EXTRA_IS_RESTORING);
-        }
     }
 
     private void loadMediaForPlayer(String videoUrl, long playerPosition) {
@@ -153,11 +183,17 @@ public class DetailFragment extends BaseFragment {
                     new DefaultTrackSelector());
             mPlayerView.setPlayer(mExoPlayer);
             mExoPlayer.addListener(new PlayerEventListener());
+            if (mCurrentUrl == null) {
+                Timber.e("URL is NULL. NOT loading player media");
+                return;
+            }
+            loadMediaForPlayer(mCurrentUrl, mCurrentPlayerPosition);
         }
     }
 
     private void releasePlayer() {
         mExoPlayer.stop();
+        mCurrentPlayerPosition = mExoPlayer.getCurrentPosition();
         mExoPlayer.release();
         mExoPlayer = null;
     }
