@@ -1,45 +1,34 @@
 package me.worric.bakingtime.ui.detail;
 
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
-import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.models.Step;
+import me.worric.bakingtime.ui.common.BaseFragment;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
+import timber.log.Timber;
 
 import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_LAYOUT_MANAGER_STATE;
 
-public class MasterFragment extends Fragment {
+public class MasterFragment extends BaseFragment {
 
     private static final String EXTRA_SHOW_INGREDIENTS = "me.worric.bakingtime.extra_show_ingredients";
-
-    private Unbinder mUnbinder;
 
     @BindView(R.id.rv_master_fragment_steps) protected RecyclerView mStepsList;
     @BindView(R.id.btn_detail_swap_steps_ingredients) protected Button mToggleIngredients;
 
-    @Inject
-    protected ViewModelProvider.Factory mFactory;
     private BakingViewModel mViewModel;
     private StepsAdapter mStepsAdapter;
     private IngredientsAdapter mIngredientsAdapter;
@@ -47,9 +36,10 @@ public class MasterFragment extends Fragment {
     private StepClickListener mListener;
     private boolean mIsShowingIngredients = false;
 
+    // Lifecycle callbacks
+
     @Override
     public void onAttach(Context context) {
-        AndroidSupportInjection.inject(this);
         super.onAttach(context);
         try {
             mListener = (StepClickListener) context;
@@ -60,16 +50,9 @@ public class MasterFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_master, container, false);
-        mUnbinder = ButterKnife.bind(this, v);
-        return v;
-    }
-
-    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Timber.d("OnViewCreated: called");
         if (savedInstanceState != null) {
             mIsShowingIngredients = savedInstanceState.getBoolean(EXTRA_SHOW_INGREDIENTS, false);
         }
@@ -81,13 +64,20 @@ public class MasterFragment extends Fragment {
         setupViewModel(savedInstanceState);
     }
 
-    private void updateButtonText() {
-        if (mIsShowingIngredients) {
-            mToggleIngredients.setText(R.string.btn_detail_show_steps);
-        } else {
-            mToggleIngredients.setText(R.string.btn_detail_show_ingredients);
-        }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveLayoutManagerState(outState);
+        outState.putBoolean(EXTRA_SHOW_INGREDIENTS, mIsShowingIngredients);
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Timber.d("onDestroy: called");
+    }
+
+    // Helper/onClick methods
 
     @OnClick(R.id.btn_detail_swap_steps_ingredients)
     public void handleToggleIngredientsClick(View view) {
@@ -102,20 +92,12 @@ public class MasterFragment extends Fragment {
         }
     }
 
-    private void setupViewModel(final Bundle savedInstanceState) {
-        mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
-        mViewModel.getChosenRecipe().observe(this, recipeView -> {
-            if (recipeView == null) return;
-
-            mStepsAdapter.swapSteps(recipeView.mSteps);
-            mIngredientsAdapter.swapIngredients(recipeView.mIngredients);
-            restoreLayoutManagerState(savedInstanceState);
-
-            // TODO possible bug
-            // If we're in tablet mode, load the first step of the recipe automatically
-            final boolean isTabletMode = getContext().getResources().getBoolean(R.bool.tablet_mode);
-            if (isTabletMode && savedInstanceState == null) mViewModel.setChosenStep(recipeView.mSteps.get(0));
-        });
+    private void updateButtonText() {
+        if (mIsShowingIngredients) {
+            mToggleIngredients.setText(R.string.btn_detail_show_steps);
+        } else {
+            mToggleIngredients.setText(R.string.btn_detail_show_ingredients);
+        }
     }
 
     private void setupRecyclerView() {
@@ -139,17 +121,31 @@ public class MasterFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        saveLayoutManagerState(outState);
-        outState.putBoolean(EXTRA_SHOW_INGREDIENTS, mIsShowingIngredients);
+    private void setupViewModel(final Bundle savedInstanceState) {
+        mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
+        mViewModel.getChosenRecipe().observe(this, recipeView -> {
+            Timber.d("calling observe method");
+            if (recipeView == null) return;
+
+            mStepsAdapter.swapSteps(recipeView.mSteps);
+            mIngredientsAdapter.swapIngredients(recipeView.mIngredients);
+            restoreLayoutManagerState(savedInstanceState);
+
+            // If we're in tablet mode, load the first step of the recipe automatically
+            if (mIsTabletMode && savedInstanceState == null) mViewModel.setChosenStep(recipeView.mSteps.get(0));
+        });
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mUnbinder.unbind();
+    public void onStart() {
+        super.onStart();
+        Timber.d("onStart: called");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Timber.d("onResume: called");
     }
 
     private void saveLayoutManagerState(final Bundle outState) {
@@ -164,9 +160,20 @@ public class MasterFragment extends Fragment {
         mManager.onRestoreInstanceState(savedLayoutManagerState);
     }
 
+    // Base class methods
+
+    @Override
+    protected int getLayout() {
+        return R.layout.fragment_master;
+    }
+
+    // Constructors
+
     public MasterFragment() {
         // Required empty public constructor
     }
+
+    // Interfaces/classes
 
     public interface StepClickListener {
         void onStepClick(Step step, int position);

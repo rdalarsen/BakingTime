@@ -1,18 +1,13 @@
 package me.worric.bakingtime.ui.detail;
 
 
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -27,23 +22,19 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import javax.inject.Inject;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Optional;
-import butterknife.Unbinder;
-import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
+import me.worric.bakingtime.ui.common.BaseFragment;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
 import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_PLAYER_STATE;
 
-public class DetailFragment extends Fragment {
+public class DetailFragment extends BaseFragment {
 
     public static final String EXTRA_IS_RESTORING = "me.worric.bakingtime.is_restoring";
 
-    @Inject
-    protected ViewModelProvider.Factory mFactory;
     @Inject
     protected ExtractorMediaSource.Factory mMediaSourceFactory;
     @Nullable @BindView(R.id.tv_detail_step_instructions)
@@ -56,46 +47,15 @@ public class DetailFragment extends Fragment {
     protected PlayerView mPlayerView;
 
     private BakingViewModel mViewModel;
-    private Unbinder mUnbinder;
     private SimpleExoPlayer mExoPlayer;
     private boolean mIsRestoring = false;
-    private boolean mIsLandscapeMode;
-    private boolean mIsTabletMode;
 
-    @Override
-    public void onAttach(Context context) {
-        AndroidSupportInjection.inject(this);
-        super.onAttach(context);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_detail, container, false);
-        mUnbinder = ButterKnife.bind(this, v);
-
-        mIsLandscapeMode = getContext().getResources().getBoolean(R.bool.landscape_mode);
-        mIsTabletMode = getActivity().getResources().getBoolean(R.bool.tablet_mode);
-        return v;
-    }
-
-    @Optional
-    @OnClick(R.id.btn_detail_next)
-    protected void handleNextButtonClick(View v) {
-        if (!mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
-        mViewModel.goToNextStep();
-    }
-
-    @Optional
-    @OnClick(R.id.btn_detail_previous)
-    protected void handlePreviousButtonClick(View v) {
-        if (!mNextButton.isEnabled()) mNextButton.setEnabled(true);
-        mViewModel.goToPreviousStep();
-    }
+    // Lifecycle callbacks
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Timber.d("OnViewCreated: called");
 
         setIsRestoring(savedInstanceState);
 
@@ -132,8 +92,44 @@ public class DetailFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Timber.d("onDestroyView: called");
+        releasePlayer();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Timber.d("onDestroy: called");
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Timber.d("onSaveInstanceState: called");
+        outState.putLong(EXTRA_PLAYER_STATE, mExoPlayer.getCurrentPosition());
+        outState.putBoolean(EXTRA_IS_RESTORING, true);
+    }
+
+    // Helper/onClick methods
+
+    @Optional
+    @OnClick(R.id.btn_detail_next)
+    protected void handleNextButtonClick(View v) {
+        if (!mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
+        mViewModel.goToNextStep();
+    }
+
+    @Optional
+    @OnClick(R.id.btn_detail_previous)
+    protected void handlePreviousButtonClick(View v) {
+        if (!mNextButton.isEnabled()) mNextButton.setEnabled(true);
+        mViewModel.goToPreviousStep();
+    }
+
     private boolean isPhoneLandscape() {
-        Timber.d("Landscape mode: %s, tablet mode is: %s", mIsLandscapeMode, mIsTabletMode);
         return mIsLandscapeMode && !mIsTabletMode;
     }
 
@@ -160,29 +156,26 @@ public class DetailFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putLong(EXTRA_PLAYER_STATE, mExoPlayer.getCurrentPosition());
-        outState.putBoolean(EXTRA_IS_RESTORING, true);
-    }
-
     private void releasePlayer() {
         mExoPlayer.stop();
         mExoPlayer.release();
         mExoPlayer = null;
     }
 
+    // Base class methods
+
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mUnbinder.unbind();
-        releasePlayer();
+    protected int getLayout() {
+        return R.layout.fragment_detail;
     }
+
+    // Constructors
 
     public DetailFragment() {
         // Required empty public constructor
     }
+
+    // Interfaces/classes
 
     private class PlayerEventListener extends Player.DefaultEventListener {
         @Override
