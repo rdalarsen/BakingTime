@@ -49,6 +49,7 @@ public class DetailFragment extends BaseFragment {
     private BakingViewModel mViewModel;
     private SimpleExoPlayer mExoPlayer;
 
+    private boolean mIsFirstRun = true;
     private boolean mChangePressed = false;
     private long mCurrentPlayerPosition = 0L;
     private String mCurrentUrl;
@@ -67,6 +68,7 @@ public class DetailFragment extends BaseFragment {
             mCurrentUrl = savedInstanceState.getString("key_current_url", "");
             mCurrentInstructions = savedInstanceState.getString("key_current_instructions", "");
             mCurrentStepIndex = savedInstanceState.getInt("key_current_step_index", -1);
+            mIsFirstRun = savedInstanceState.getBoolean("key_is_first_run", true);
         }
 
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
@@ -94,9 +96,21 @@ public class DetailFragment extends BaseFragment {
                 return;
             }
 
-            if (mChangePressed || mIsTabletMode) {
-                loadMediaForPlayer(mCurrentUrl, 0L);
-                mChangePressed = false;
+            if (mIsTabletMode) {
+                boolean isNull = mViewModel.getIsClicked().getValue() == null;
+                boolean isClicked = isNull ? false : mViewModel.getIsClicked().getValue();
+                Timber.d("First run: %s - isClicked: %s", mIsFirstRun, isClicked);
+                if (mIsFirstRun || isClicked) {
+                    loadMediaForPlayer(mCurrentUrl, 0L);
+                    mViewModel.setIsClicked(false);
+                    mIsFirstRun = false;
+                }
+            } else {
+                if (mIsFirstRun || mChangePressed) {
+                    loadMediaForPlayer(mCurrentUrl, 0L);
+                    mChangePressed = false;
+                    mIsFirstRun = false;
+                }
             }
         });
     }
@@ -149,6 +163,7 @@ public class DetailFragment extends BaseFragment {
         outState.putString("key_current_url", mCurrentUrl);
         outState.putString("key_current_instructions", mCurrentInstructions);
         outState.putInt("key_current_step_index", mCurrentStepIndex);
+        outState.putBoolean("key_is_first_run", mIsFirstRun);
     }
 
     // Helper/onClick methods

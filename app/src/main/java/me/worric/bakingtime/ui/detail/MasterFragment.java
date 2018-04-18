@@ -143,6 +143,7 @@ public class MasterFragment extends BaseFragment {
 
         mIngredientsAdapter = new IngredientsAdapter();
         mStepsAdapter = new StepsAdapter((step) -> {
+            mViewModel.setIsClicked(true);
             mViewModel.setChosenStep(step);
             mStepListState = mManager.onSaveInstanceState();
             mListener.onStepClick(step);

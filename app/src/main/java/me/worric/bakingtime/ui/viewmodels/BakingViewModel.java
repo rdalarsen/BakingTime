@@ -25,6 +25,7 @@ public class BakingViewModel extends ViewModel {
 
     private final MutableLiveData<Long> mRecipeId;
     private final MutableLiveData<Step> mChosenStep;
+    private final MutableLiveData<Boolean> mIsClicked;
     private final MediatorLiveData<RecipeView> mChosenRecipe;
     private final Repository<RecipeView> mRecipeRepository;
 
@@ -32,6 +33,7 @@ public class BakingViewModel extends ViewModel {
     public BakingViewModel(Repository<RecipeView> recipeRepository) {
         mRecipeId = new MutableLiveData<>();
         mChosenStep = new MutableLiveData<>();
+        mIsClicked = new MutableLiveData<>();
         mRecipeRepository = recipeRepository;
         Timber.e("Repository hashCode: %d", mRecipeRepository.hashCode());
         mChosenRecipe = new MediatorLiveData<>();
@@ -60,6 +62,14 @@ public class BakingViewModel extends ViewModel {
         } else {
             Timber.e("Steps are identical; not updating");
         }
+    }
+
+    public void setIsClicked(boolean isClicked) {
+        mIsClicked.setValue(isClicked);
+    }
+
+    public LiveData<Boolean> getIsClicked() {
+        return mIsClicked;
     }
 
     public LiveData<StepWithSteps> getChosenStepWithSteps() {
