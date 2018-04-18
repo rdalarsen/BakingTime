@@ -142,9 +142,10 @@ public class MasterFragment extends BaseFragment {
                 DividerItemDecoration.VERTICAL));
 
         mIngredientsAdapter = new IngredientsAdapter();
-        mStepsAdapter = new StepsAdapter((step, position) -> {
+        mStepsAdapter = new StepsAdapter((step) -> {
             mViewModel.setChosenStep(step);
-            mListener.onStepClick(step, position);
+            mStepListState = mManager.onSaveInstanceState();
+            mListener.onStepClick(step);
         });
 
         if (mIsShowingIngredients) {
@@ -190,7 +191,7 @@ public class MasterFragment extends BaseFragment {
     // Interfaces/classes
 
     public interface StepClickListener {
-        void onStepClick(Step step, int position);
+        void onStepClick(Step step);
     }
 
 }

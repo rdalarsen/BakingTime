@@ -50,7 +50,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         GlideApp.with(holder.itemView.getContext())
                 .load(step.getThumbnailURL())
                 .into(holder.mThumbnail);
-        holder.itemView.setOnClickListener(v -> mListener.onStepClick(step, position));
+        holder.itemView.setOnClickListener(v -> mListener.onStepClick(step));
     }
 
     @Override
