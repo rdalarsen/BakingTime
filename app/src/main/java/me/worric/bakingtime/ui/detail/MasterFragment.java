@@ -25,6 +25,7 @@ public class MasterFragment extends BaseFragment {
     private static final String EXTRA_SHOW_INGREDIENTS = "me.worric.bakingtime.extra_show_ingredients";
     private static final String EXTRA_STEPS_LIST_STATE = "me.worric.bakingtime.extra_steps_list_state";
     private static final String EXTRA_INGREDIENTS_LIST_STATE = "me.worric.bakingtime.extra_ingredients_list_state";
+    public static final String EXTRA_IS_FIRST_RUN = "me.worric.bakingtime.extra_is_first_run";
 
     @BindView(R.id.rv_master_fragment_steps) protected RecyclerView mContentList;
     @BindView(R.id.btn_detail_swap_steps_ingredients) protected Button mToggleContentButton;
@@ -35,6 +36,7 @@ public class MasterFragment extends BaseFragment {
     private LinearLayoutManager mManager;
     private StepClickListener mListener;
 
+    private boolean mIsFirstRun = true;
     private boolean mIsShowingIngredients = false;
     private Parcelable mStepListState;
     private Parcelable mIngredientsListState;
@@ -53,20 +55,28 @@ public class MasterFragment extends BaseFragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Timber.d("OnViewCreated: called");
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Timber.d("onCreate: called");
+
         if (savedInstanceState != null) {
             mIsShowingIngredients = savedInstanceState.getBoolean(EXTRA_SHOW_INGREDIENTS, false);
             mIngredientsListState = savedInstanceState.getParcelable(EXTRA_INGREDIENTS_LIST_STATE);
             mStepListState = savedInstanceState.getParcelable(EXTRA_STEPS_LIST_STATE);
+            mIsFirstRun = savedInstanceState.getBoolean(EXTRA_IS_FIRST_RUN);
         }
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Timber.d("OnViewCreated: called");
 
         updateButtonText();
 
         setupRecyclerView();
 
-        setupViewModel(savedInstanceState == null);
+        setupViewModel();
     }
 
     @Override
@@ -86,6 +96,7 @@ public class MasterFragment extends BaseFragment {
             }
         }
         outState.putBoolean(EXTRA_SHOW_INGREDIENTS, mIsShowingIngredients);
+        outState.putBoolean(EXTRA_IS_FIRST_RUN, mIsFirstRun);
     }
 
     @Override
@@ -143,7 +154,7 @@ public class MasterFragment extends BaseFragment {
 
         mIngredientsAdapter = new IngredientsAdapter();
         mStepsAdapter = new StepsAdapter((step) -> {
-            mViewModel.setIsClicked(true);
+            mViewModel.setStepButtonClicked(true);
             mViewModel.setChosenStep(step);
             mStepListState = mManager.onSaveInstanceState();
             mListener.onStepClick(step);
@@ -156,7 +167,7 @@ public class MasterFragment extends BaseFragment {
         }
     }
 
-    private void setupViewModel(final boolean firstRun) {
+    private void setupViewModel() {
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
             Timber.d("calling observe method");
@@ -171,8 +182,12 @@ public class MasterFragment extends BaseFragment {
                 if (mStepListState != null) mManager.onRestoreInstanceState(mStepListState);
             }
 
-            // If we're in tablet mode, load the first step of the recipe automatically
-            if (mIsTabletMode && firstRun) mViewModel.setChosenStep(recipeView.mSteps.get(0));
+            // If we're in tablet mode on the first run, load the first step of the recipe automatically
+            if (mIsTabletMode && mIsFirstRun) {
+                Timber.i("Setting chosen step on first run in tablet mode");
+                mViewModel.setChosenStep(recipeView.mSteps.get(0));
+                mIsFirstRun = false;
+            }
         });
     }
 
@@ -189,7 +204,7 @@ public class MasterFragment extends BaseFragment {
         // Required empty public constructor
     }
 
-    // Interfaces/classes
+    // Nested interfaces/classes
 
     public interface StepClickListener {
         void onStepClick(Step step);

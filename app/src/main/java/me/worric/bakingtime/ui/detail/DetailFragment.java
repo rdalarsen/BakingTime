@@ -25,15 +25,16 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.Optional;
 import me.worric.bakingtime.R;
+import me.worric.bakingtime.data.models.StepDetails;
 import me.worric.bakingtime.ui.common.BaseFragment;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
-import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_PLAYER_STATE;
-
 public class DetailFragment extends BaseFragment {
 
-    public static final String EXTRA_IS_RESTORING = "me.worric.bakingtime.is_restoring";
+    private static final String EXTRA_PLAYER_POSITION = "me.worric.bakingtime.extra_player_state";
+    private static final String EXTRA_STEP_DETAILS = "me.worric.bakingtime.extra_step_details";
+    private static final String EXTRA_SHOULD_START_PLAYING = "me.worric.bakingtime.extra_should_start_playing";
 
     @Inject
     protected ExtractorMediaSource.Factory mMediaSourceFactory;
@@ -49,96 +50,114 @@ public class DetailFragment extends BaseFragment {
     private BakingViewModel mViewModel;
     private SimpleExoPlayer mExoPlayer;
 
-    private boolean mIsFirstRun = true;
-    private boolean mChangePressed = false;
-    private long mCurrentPlayerPosition = 0L;
-    private String mCurrentUrl;
-    private String mCurrentInstructions;
-    private int mCurrentStepIndex;
+    private StepDetails mStepDetails;
+    private boolean mNavButtonClicked = false;
+    private long mPlayerPosition = 0L;
+    private boolean mShouldStartPlaying = true;
 
     // Lifecycle callbacks
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Timber.d("onCreate: called");
+
+        if (savedInstanceState != null) {
+            Timber.d("restoring instance state");
+            mStepDetails = savedInstanceState.getParcelable(EXTRA_STEP_DETAILS);
+            mPlayerPosition = savedInstanceState.getLong(EXTRA_PLAYER_POSITION, 0L);
+            mShouldStartPlaying = savedInstanceState.getBoolean(EXTRA_SHOULD_START_PLAYING, true);
+        }
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Timber.d("OnViewCreated: called");
 
-        if (savedInstanceState != null) {
-            mCurrentPlayerPosition = savedInstanceState.getLong(EXTRA_PLAYER_STATE, 0L);
-            mCurrentUrl = savedInstanceState.getString("key_current_url", "");
-            mCurrentInstructions = savedInstanceState.getString("key_current_instructions", "");
-            mCurrentStepIndex = savedInstanceState.getInt("key_current_step_index", -1);
-            mIsFirstRun = savedInstanceState.getBoolean("key_is_first_run", true);
-        }
+        restoreNavButtonsState(mStepDetails);
 
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
-        mViewModel.getChosenStepWithSteps().observe(this, stepWithSteps -> {
+        mViewModel.getStepDetails().observe(this, stepDetails -> {
             Timber.d("Observe method called");
-            if (stepWithSteps == null) return;
+            if (stepDetails == null) return;
 
-            // TODO: Create data model for this class
-            mCurrentUrl = stepWithSteps.currentStep.getVideoURL();
-            mCurrentStepIndex = stepWithSteps.getIndexOfCurrentStep();
-            mCurrentInstructions = stepWithSteps.currentStep.getDescription();
+            boolean isFirstRun = mStepDetails == null;
 
-            if (mInstructions != null) mInstructions.setText(mCurrentInstructions);
-            if (mPreviousButton != null && mNextButton != null) {
-                int index = stepWithSteps.getIndexOfCurrentStep();
-                if (index == 0) {
-                    mPreviousButton.setEnabled(false);
-                } else if (index == stepWithSteps.currentRecipeSteps.size() - 1) {
-                    mNextButton.setEnabled(false);
-                }
-            }
+            mStepDetails = stepDetails;
+
+            restoreNavButtonsState(mStepDetails);
 
             if (mExoPlayer == null) {
-                Timber.e("ExoPlayer is null; returning");
+                Timber.e("ExoPlayer is null - let initializePlayer() load media");
                 return;
             }
 
             if (mIsTabletMode) {
-                boolean isNull = mViewModel.getIsClicked().getValue() == null;
-                boolean isClicked = isNull ? false : mViewModel.getIsClicked().getValue();
-                Timber.d("First run: %s - isClicked: %s", mIsFirstRun, isClicked);
-                if (mIsFirstRun || isClicked) {
-                    loadMediaForPlayer(mCurrentUrl, 0L);
-                    mViewModel.setIsClicked(false);
-                    mIsFirstRun = false;
+                boolean clickEventIsNull = mViewModel.getStepButtonClicked().getValue() == null;
+                boolean stepButtonClicked = clickEventIsNull ?
+                        false : mViewModel.getStepButtonClicked().getValue();
+                Timber.d("First run: %s - stepButtonClicked: %s",
+                        isFirstRun, stepButtonClicked);
+                if (isFirstRun || stepButtonClicked) {
+                    Timber.i("Callback: Loading media...");
+                    loadMediaForPlayer(mStepDetails.stepUrl, 0L);
+                    mViewModel.setStepButtonClicked(false);
+                } else {
+                    Timber.e("No conditions match - initializePlayer loads media");
                 }
             } else {
-                if (mIsFirstRun || mChangePressed) {
-                    loadMediaForPlayer(mCurrentUrl, 0L);
-                    mChangePressed = false;
-                    mIsFirstRun = false;
+                Timber.d("First run: %s - navButtonClicked: %s",
+                        isFirstRun, mNavButtonClicked);
+                if (isFirstRun || mNavButtonClicked) {
+                    Timber.i("Callback: Loading media...");
+                    loadMediaForPlayer(mStepDetails.stepUrl, 0L);
+                    mNavButtonClicked = false;
+                } else {
+                    Timber.e("No conditions match - initializePlayer loads media");
                 }
             }
         });
+    }
+
+    private void restoreNavButtonsState(StepDetails stepDetails) {
+        if (mStepDetails == null) return;
+
+        if (mInstructions != null) mInstructions.setText(mStepDetails.stepInstructions);
+        if (mPreviousButton != null && mNextButton != null) {
+            if (mStepDetails.stepIndex == 0) {
+                mPreviousButton.setEnabled(false);
+            } else if (mStepDetails.stepIndex == stepDetails.numSteps - 1) {
+                mNextButton.setEnabled(false);
+            }
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
         Timber.d("onStart: called.");
+        initializePlayer();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Timber.d("onResume: called. Initializing Player");
-        initializePlayer();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Timber.d("onPause: called. Saving position and releasing player");
-        releasePlayer();
+        savePlayerState();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         Timber.d("onStop: called.");
+        releasePlayer();
     }
 
     @Override
@@ -157,13 +176,9 @@ public class DetailFragment extends BaseFragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Timber.d("onSaveInstanceState: called");
-        outState.putLong(EXTRA_PLAYER_STATE, mCurrentPlayerPosition);
-        outState.putBoolean(EXTRA_IS_RESTORING, true);
-
-        outState.putString("key_current_url", mCurrentUrl);
-        outState.putString("key_current_instructions", mCurrentInstructions);
-        outState.putInt("key_current_step_index", mCurrentStepIndex);
-        outState.putBoolean("key_is_first_run", mIsFirstRun);
+        outState.putLong(EXTRA_PLAYER_POSITION, mPlayerPosition);
+        outState.putParcelable(EXTRA_STEP_DETAILS, mStepDetails);
+        outState.putBoolean(EXTRA_SHOULD_START_PLAYING, mShouldStartPlaying);
     }
 
     // Helper/onClick methods
@@ -172,23 +187,29 @@ public class DetailFragment extends BaseFragment {
     @OnClick(R.id.btn_detail_next)
     protected void handleNextButtonClick(View v) {
         if (!mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
-        mChangePressed = true;
-        mViewModel.goToNextStep();
+        mNavButtonClicked = true;
+        mViewModel.goToNextStep(mStepDetails);
     }
 
     @Optional
     @OnClick(R.id.btn_detail_previous)
     protected void handlePreviousButtonClick(View v) {
         if (!mNextButton.isEnabled()) mNextButton.setEnabled(true);
-        mChangePressed = true;
-        mViewModel.goToPreviousStep();
+        mNavButtonClicked = true;
+        mViewModel.goToPreviousStep(mStepDetails);
+    }
+
+    private void savePlayerState() {
+        mPlayerPosition = mExoPlayer.getCurrentPosition();
+        mShouldStartPlaying = mExoPlayer.getPlayWhenReady();
     }
 
     private void loadMediaForPlayer(String videoUrl, long playerPosition) {
+        Timber.d("Video URL is: %s", videoUrl);
         Uri videoUri = TextUtils.isEmpty(videoUrl) ? null : Uri.parse(videoUrl);
         MediaSource mediaSource = mMediaSourceFactory.createMediaSource(videoUri, null, null);
         mExoPlayer.prepare(mediaSource);
-        mExoPlayer.setPlayWhenReady(true);
+        mExoPlayer.setPlayWhenReady(mShouldStartPlaying);
         if (playerPosition != 0L) mExoPlayer.seekTo(playerPosition);
     }
 
@@ -198,17 +219,17 @@ public class DetailFragment extends BaseFragment {
                     new DefaultTrackSelector());
             mPlayerView.setPlayer(mExoPlayer);
             mExoPlayer.addListener(new PlayerEventListener());
-            if (mCurrentUrl == null) {
-                Timber.e("URL is NULL. NOT loading player media");
+            if (mStepDetails == null) {
+                Timber.e("StepDetails is null - let the callback load media");
                 return;
             }
-            loadMediaForPlayer(mCurrentUrl, mCurrentPlayerPosition);
+            Timber.i("InitializePlayer: Loading media...");
+            loadMediaForPlayer(mStepDetails.stepUrl, mPlayerPosition);
         }
     }
 
     private void releasePlayer() {
         mExoPlayer.stop();
-        mCurrentPlayerPosition = mExoPlayer.getCurrentPosition();
         mExoPlayer.release();
         mExoPlayer = null;
     }
@@ -226,7 +247,7 @@ public class DetailFragment extends BaseFragment {
         // Required empty public constructor
     }
 
-    // Interfaces/classes
+    // Nested interfaces/classes
 
     private class PlayerEventListener extends Player.DefaultEventListener {
         @Override
@@ -235,14 +256,14 @@ public class DetailFragment extends BaseFragment {
                 case Player.STATE_IDLE:
                     Timber.d("Player is IDLE: %d", Player.STATE_IDLE);
                     break;
+                case Player.STATE_BUFFERING:
+                    Timber.d("Player is BUFFERING: %d", Player.STATE_BUFFERING);
+                    break;
                 case Player.STATE_READY:
                     Timber.d("Player is READY: %d", Player.STATE_READY);
                     break;
                 case Player.STATE_ENDED:
                     Timber.d("Player is ENDED: %d", Player.STATE_ENDED);
-                    break;
-                case Player.STATE_BUFFERING:
-                    Timber.d("Player is BUFFERING: %d", Player.STATE_BUFFERING);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown state: " + playbackState);

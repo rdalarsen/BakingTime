@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.data.models.Step;
-import me.worric.bakingtime.data.models.StepWithSteps;
+import me.worric.bakingtime.data.models.StepDetails;
 import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.di.ActivityScope;
 import timber.log.Timber;
@@ -25,7 +25,7 @@ public class BakingViewModel extends ViewModel {
 
     private final MutableLiveData<Long> mRecipeId;
     private final MutableLiveData<Step> mChosenStep;
-    private final MutableLiveData<Boolean> mIsClicked;
+    private final MutableLiveData<Boolean> mStepButtonClicked;
     private final MediatorLiveData<RecipeView> mChosenRecipe;
     private final Repository<RecipeView> mRecipeRepository;
 
@@ -33,7 +33,7 @@ public class BakingViewModel extends ViewModel {
     public BakingViewModel(Repository<RecipeView> recipeRepository) {
         mRecipeId = new MutableLiveData<>();
         mChosenStep = new MutableLiveData<>();
-        mIsClicked = new MutableLiveData<>();
+        mStepButtonClicked = new MutableLiveData<>();
         mRecipeRepository = recipeRepository;
         Timber.e("Repository hashCode: %d", mRecipeRepository.hashCode());
         mChosenRecipe = new MediatorLiveData<>();
@@ -64,33 +64,42 @@ public class BakingViewModel extends ViewModel {
         }
     }
 
-    public void setIsClicked(boolean isClicked) {
-        mIsClicked.setValue(isClicked);
+    public void setStepButtonClicked(boolean stepButtonClicked) {
+        mStepButtonClicked.setValue(stepButtonClicked);
     }
 
-    public LiveData<Boolean> getIsClicked() {
-        return mIsClicked;
+    public LiveData<Boolean> getStepButtonClicked() {
+        return mStepButtonClicked;
     }
 
-    public LiveData<StepWithSteps> getChosenStepWithSteps() {
+    public LiveData<StepDetails> getStepDetails() {
         return Transformations.switchMap(mChosenStep, (Step step) ->
-                Transformations.map(mChosenRecipe, (RecipeView recepe) ->
-                        StepWithSteps.newInstance(step, recepe.mSteps)));
+                Transformations.map(mChosenRecipe, (RecipeView recipe) -> {
+                    int indexOf = recipe.mSteps.indexOf(step);
+                    int numSteps = recipe.mSteps.size();
+                    return StepDetails.newInstance(indexOf, numSteps, step.getVideoURL(),
+                            step.getDescription());
+                }));
     }
 
-    public void goToNextStep() {
-        goToNextOrPrevious(NEXT);
+    public void goToNextStep(StepDetails stepDetails) {
+        goToNextOrPrevious(NEXT, stepDetails);
     }
 
-    public void goToPreviousStep() {
-        goToNextOrPrevious(PREVIOUS);
+    public void goToPreviousStep(StepDetails stepDetails) {
+        goToNextOrPrevious(PREVIOUS, stepDetails);
     }
 
-    private void goToNextOrPrevious(int nextOrPrevious) {
+    private void goToNextOrPrevious(int nextOrPrevious, StepDetails stepDetails) {
         RecipeView recipeView = mChosenRecipe.getValue();
         Step chosenStep = mChosenStep.getValue();
 
-        if (recipeView != null && recipeView.mSteps != null && chosenStep != null) {
+        // Account for when app has been killed in the background in phone mode w/ detailsfragment active
+        if (chosenStep == null) {
+            chosenStep = recipeView.mSteps.get(stepDetails.stepIndex);
+        }
+
+        if (recipeView != null && recipeView.mSteps != null) {
             int index = recipeView.getIndexOfStep(chosenStep);
 
             if (nextOrPrevious == NEXT && index < (recipeView.mSteps.size() - 1)) {
