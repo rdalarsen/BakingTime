@@ -1,7 +1,9 @@
 package me.worric.bakingtime.ui.detail;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,20 +17,35 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.models.Step;
+import me.worric.bakingtime.data.models.StepDetails;
 import me.worric.bakingtime.ui.GlideApp;
 
 public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHolder> {
 
-    private MasterFragment.StepClickListener mListener;
+    private final boolean mIsTabletMode;
+    private final MasterFragment.StepClickListener mListener;
     private List<Step> mSteps;
+    private StepDetails mStepDetails;
+    @ColorInt private final int mHighlightColor;
+    @ColorInt private final int mRestoreColor;
 
-    public StepsAdapter(MasterFragment.StepClickListener listener) {
+    public StepsAdapter(MasterFragment.StepClickListener listener, boolean isTabletMode, Context context) {
         mListener = listener;
+        mIsTabletMode = isTabletMode;
+        mHighlightColor = ContextCompat.getColor(context, R.color.colorAccent);
+        mRestoreColor = ContextCompat.getColor(context, android.R.color.transparent);
     }
 
     public void swapSteps(List<Step> steps) {
         mSteps = steps;
         notifyDataSetChanged();
+    }
+
+    public void setCurrentStep(StepDetails stepDetails) {
+        int oldStepIndex = mStepDetails == null ? -1 : mStepDetails.stepIndex;
+        mStepDetails = stepDetails;
+        notifyItemChanged(mStepDetails.stepIndex);
+        if (oldStepIndex != -1) notifyItemChanged(oldStepIndex);
     }
 
     @NonNull
@@ -51,6 +68,14 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
                 .load(step.getThumbnailURL())
                 .into(holder.mThumbnail);
         holder.itemView.setOnClickListener(v -> mListener.onStepClick(step));
+
+        if (mIsTabletMode && mStepDetails != null) {
+            if (position == mStepDetails.stepIndex) {
+                holder.itemView.setBackgroundColor(mHighlightColor);
+            } else {
+                holder.itemView.setBackgroundColor(mRestoreColor);
+            }
+        }
     }
 
     @Override

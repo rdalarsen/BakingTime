@@ -158,7 +158,7 @@ public class MasterFragment extends BaseFragment {
             mViewModel.setChosenStep(step);
             mStepListState = mManager.onSaveInstanceState();
             mListener.onStepClick(step);
-        });
+        }, mIsTabletMode, getContext());
 
         if (mIsShowingIngredients) {
             mContentList.setAdapter(mIngredientsAdapter);
@@ -188,6 +188,11 @@ public class MasterFragment extends BaseFragment {
                 mViewModel.setChosenStep(recipeView.mSteps.get(0));
                 mIsFirstRun = false;
             }
+        });
+        mViewModel.getStepDetails().observe(this, stepDetails -> {
+            if (stepDetails == null || mStepsAdapter == null) return;
+
+            mStepsAdapter.setCurrentStep(stepDetails);
         });
     }
 
