@@ -35,6 +35,7 @@ public class DetailFragment extends BaseFragment {
     private static final String EXTRA_PLAYER_POSITION = "me.worric.bakingtime.extra_player_state";
     private static final String EXTRA_STEP_DETAILS = "me.worric.bakingtime.extra_step_details";
     private static final String EXTRA_SHOULD_START_PLAYING = "me.worric.bakingtime.extra_should_start_playing";
+    private static final long START_OF_VIDEO = 0L;
 
     @Inject
     protected ExtractorMediaSource.Factory mMediaSourceFactory;
@@ -52,7 +53,7 @@ public class DetailFragment extends BaseFragment {
 
     private StepDetails mStepDetails;
     private boolean mNavButtonClicked = false;
-    private long mPlayerPosition = 0L;
+    private long mPlayerPosition = START_OF_VIDEO;
     private boolean mShouldStartPlaying = true;
 
     // Lifecycle callbacks
@@ -65,7 +66,7 @@ public class DetailFragment extends BaseFragment {
         if (savedInstanceState != null) {
             Timber.d("restoring instance state");
             mStepDetails = savedInstanceState.getParcelable(EXTRA_STEP_DETAILS);
-            mPlayerPosition = savedInstanceState.getLong(EXTRA_PLAYER_POSITION, 0L);
+            mPlayerPosition = savedInstanceState.getLong(EXTRA_PLAYER_POSITION, START_OF_VIDEO);
             mShouldStartPlaying = savedInstanceState.getBoolean(EXTRA_SHOULD_START_PLAYING, true);
         }
     }
@@ -101,7 +102,7 @@ public class DetailFragment extends BaseFragment {
                         isFirstRun, stepButtonClicked);
                 if (isFirstRun || stepButtonClicked) {
                     Timber.i("Callback: Loading media...");
-                    loadMediaForPlayer(mStepDetails.stepUrl, 0L);
+                    loadMediaForPlayer(mStepDetails.stepUrl, START_OF_VIDEO);
                     mViewModel.setStepButtonClicked(false);
                 } else {
                     Timber.e("No conditions match - initializePlayer loads media");
@@ -111,7 +112,7 @@ public class DetailFragment extends BaseFragment {
                         isFirstRun, mNavButtonClicked);
                 if (isFirstRun || mNavButtonClicked) {
                     Timber.i("Callback: Loading media...");
-                    loadMediaForPlayer(mStepDetails.stepUrl, 0L);
+                    loadMediaForPlayer(mStepDetails.stepUrl, START_OF_VIDEO);
                     mNavButtonClicked = false;
                 } else {
                     Timber.e("No conditions match - initializePlayer loads media");
@@ -188,7 +189,7 @@ public class DetailFragment extends BaseFragment {
     protected void handleNextButtonClick(View v) {
         if (!mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
         mNavButtonClicked = true;
-        mViewModel.goToNextStep(mStepDetails);
+        mViewModel.goToStep(BakingViewModel.NEXT);
     }
 
     @Optional
@@ -196,7 +197,7 @@ public class DetailFragment extends BaseFragment {
     protected void handlePreviousButtonClick(View v) {
         if (!mNextButton.isEnabled()) mNextButton.setEnabled(true);
         mNavButtonClicked = true;
-        mViewModel.goToPreviousStep(mStepDetails);
+        mViewModel.goToStep(BakingViewModel.PREVIOUS);
     }
 
     private void savePlayerState() {
@@ -210,7 +211,7 @@ public class DetailFragment extends BaseFragment {
         MediaSource mediaSource = mMediaSourceFactory.createMediaSource(videoUri, null, null);
         mExoPlayer.prepare(mediaSource);
         mExoPlayer.setPlayWhenReady(mShouldStartPlaying);
-        if (playerPosition != 0L) mExoPlayer.seekTo(playerPosition);
+        if (playerPosition != START_OF_VIDEO) mExoPlayer.seekTo(playerPosition);
     }
 
     private void initializePlayer() {

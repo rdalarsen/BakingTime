@@ -24,7 +24,7 @@ import timber.log.Timber;
 public class DetailActivity extends AppCompatActivity implements HasSupportFragmentInjector,
         MasterFragment.StepClickListener {
 
-    private static final long INVALID_STEP = -1L;
+    private static final long INVALID_STEP_ID = -1L;
     public static final String EXTRA_RECIPE_ID = "me.worric.bakingtime.extra_recipe_id";
     private static final String EXTRA_STEP_ID = "me.worric.bakingtime.extra_step_id";
 
@@ -55,12 +55,12 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         Timber.d("Setting chosen recipe");
         mViewModel.setChosenRecipe(recipeId);
 
+        // If app process has been killed in the background, we should restore ViewModel
         if (savedInstanceState != null) {
             if (mViewModel.getStep().getValue() == null) {
-                // App process has been killed in the background, restore ViewModel
-                Long stepId = savedInstanceState.getLong(EXTRA_STEP_ID, INVALID_STEP);
-                Timber.i("Step ID = %d, %s restoring", stepId, stepId == INVALID_STEP ? "NOT" : "");
-                if (stepId != INVALID_STEP) {
+                Long stepId = savedInstanceState.getLong(EXTRA_STEP_ID, INVALID_STEP_ID);
+                Timber.i("Step ID = %d, %s restoring", stepId, stepId == INVALID_STEP_ID ? "NOT" : "");
+                if (stepId != INVALID_STEP_ID) {
                     mViewModel.setStep(stepId);
                 }
             }

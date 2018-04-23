@@ -20,8 +20,8 @@ import timber.log.Timber;
 @ActivityScope
 public class BakingViewModel extends ViewModel {
 
-    private static final int NEXT = 0;
-    private static final int PREVIOUS = 1;
+    public static final int NEXT = 0;
+    public static final int PREVIOUS = 1;
 
     private final MutableLiveData<Long> mRecipeId = new MutableLiveData<>();
     private final MediatorLiveData<RecipeView> mChosenRecipe = new MediatorLiveData<>();
@@ -97,27 +97,15 @@ public class BakingViewModel extends ViewModel {
                 }));
     }
 
-    public void goToNextStep(StepDetails stepDetails) {
-        goToNextOrPrevious(NEXT, stepDetails);
-    }
-
-    public void goToPreviousStep(StepDetails stepDetails) {
-        goToNextOrPrevious(PREVIOUS, stepDetails);
-    }
-
-    private void goToNextOrPrevious(int nextOrPrevious, StepDetails stepDetails) {
+    public void goToStep(int nextOrPrevious) {
         RecipeView recipeView = mChosenRecipe.getValue();
-        Step chosenStep = mStep.getValue();
+        Step chosenStep = mChosenStep.getValue();
 
-        // Account for when app has been killed in the background in phone mode w/ detailsfragment active
-        if (chosenStep == null) {
-            chosenStep = recipeView.mSteps.get(stepDetails.stepIndex);
-        }
-
-        if (recipeView != null && recipeView.mSteps != null) {
+        if (recipeView != null && recipeView.mSteps != null && chosenStep != null) {
             int index = recipeView.getIndexOfStep(chosenStep);
+            int maxStepIndex = recipeView.mSteps.size() - 1;
 
-            if (nextOrPrevious == NEXT && index < (recipeView.mSteps.size() - 1)) {
+            if (nextOrPrevious == NEXT && index < maxStepIndex) {
                 mStep.setValue(recipeView.mSteps.get(index + 1));
             } else if (nextOrPrevious == PREVIOUS && index > 0) {
                 mStep.setValue(recipeView.mSteps.get(index - 1));
