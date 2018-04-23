@@ -136,27 +136,27 @@ public class DetailFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        Timber.d("onStart: called.");
+        Timber.d("onStart: called. Initializing Player");
         initializePlayer();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Timber.d("onResume: called. Initializing Player");
+        Timber.d("onResume: called.");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Timber.d("onPause: called. Saving position and releasing player");
+        Timber.d("onPause: called. Saving position");
         savePlayerState();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Timber.d("onStop: called.");
+        Timber.d("onStop: called. Releasing player");
         releasePlayer();
     }
 

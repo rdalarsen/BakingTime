@@ -19,7 +19,7 @@ import timber.log.Timber;
 public class BakingRemoteViewsService extends RemoteViewsService {
 
     @Inject
-    protected Repository<RecipeView> recipeRepository;
+    protected Repository recipeRepository;
 
     @Override
     public void onCreate() {
@@ -33,12 +33,12 @@ public class BakingRemoteViewsService extends RemoteViewsService {
 
     public static class BakingRemoteViewsFactory implements RemoteViewsFactory {
 
-        private final Repository<RecipeView> mRepository;
+        private final Repository mRepository;
         private final Context mContext;
         private final long mRecipeId;
         private RecipeView mRecipeView;
 
-        BakingRemoteViewsFactory(Context context, Repository<RecipeView> recipeRepository,
+        BakingRemoteViewsFactory(Context context, Repository recipeRepository,
                                         Intent intent) {
             mRepository = recipeRepository;
             mContext = context;
@@ -51,7 +51,7 @@ public class BakingRemoteViewsService extends RemoteViewsService {
         public void onDataSetChanged() {
             Timber.e("onDataSetChanged: called. Repository hashCode: %d",
                     mRepository.hashCode());
-            mRecipeView = mRepository.findOneByIdSync(mRecipeId);
+            mRecipeView = mRepository.findRecipeByIdSync(mRecipeId);
         }
 
         @Override

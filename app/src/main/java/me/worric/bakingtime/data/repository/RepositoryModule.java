@@ -9,7 +9,6 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import me.worric.bakingtime.data.db.AppDatabase;
-import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.di.AppContext;
 
 @Module
@@ -17,7 +16,7 @@ public abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract Repository<RecipeView> bindRepo(RecipeRepository recipeRepository);
+    abstract Repository bindRepo(RecipeRepository recipeRepository);
 
     @Provides
     @Singleton

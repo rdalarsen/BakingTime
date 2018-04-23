@@ -19,11 +19,14 @@ import dagger.android.support.HasSupportFragmentInjector;
 import me.worric.bakingtime.R;
 import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
+import timber.log.Timber;
 
 public class DetailActivity extends AppCompatActivity implements HasSupportFragmentInjector,
         MasterFragment.StepClickListener {
 
+    private static final long INVALID_STEP = -1L;
     public static final String EXTRA_RECIPE_ID = "me.worric.bakingtime.extra_recipe_id";
+    private static final String EXTRA_STEP_ID = "me.worric.bakingtime.extra_step_id";
 
     @Inject
     protected ViewModelProvider.Factory mFactory;
@@ -32,6 +35,7 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
     DispatchingAndroidInjector<Fragment> fragmentInjector;
 
     private boolean mTabletMode;
+    private BakingViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +44,40 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         setContentView(R.layout.activity_detail);
         ButterKnife.bind(this);
 
+        mTabletMode = getResources().getBoolean(R.bool.tablet_mode);
+
         Long recipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, -1L);
-        BakingViewModel mViewModel = ViewModelProviders.of(this, mFactory)
+        mViewModel = ViewModelProviders.of(this, mFactory)
                 .get(BakingViewModel.class);
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
             if (recipeView != null) getSupportActionBar().setTitle(recipeView.mRecipe.getName());
         });
+        Timber.d("Setting chosen recipe");
         mViewModel.setChosenRecipe(recipeId);
 
-        mTabletMode = getResources().getBoolean(R.bool.tablet_mode);
+        if (savedInstanceState != null) {
+            if (mViewModel.getStep().getValue() == null) {
+                // App process has been killed in the background, restore ViewModel
+                Long stepId = savedInstanceState.getLong(EXTRA_STEP_ID, INVALID_STEP);
+                Timber.i("Step ID = %d, %s restoring", stepId, stepId == INVALID_STEP ? "NOT" : "");
+                if (stepId != INVALID_STEP) {
+                    mViewModel.setStep(stepId);
+                }
+            }
+        }
 
         if (savedInstanceState == null && !mTabletMode) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detail_fragment_container, new MasterFragment())
                     .commit();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Step step = mViewModel.getStep().getValue();
+        if (step != null) outState.putLong(EXTRA_STEP_ID, step.getId());
     }
 
     @Override

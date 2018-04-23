@@ -1,7 +1,6 @@
 package me.worric.bakingtime.data.repository;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 
 import java.util.List;
 
@@ -21,9 +20,8 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 @Singleton
-public class RecipeRepository implements Repository<RecipeView>, Callback<List<Recipe>> {
+public class RecipeRepository implements Repository, Callback<List<Recipe>> {
 
-    private final MutableLiveData<List<RecipeView>> mRecipesList;
     private final BakingWebService mBakingWebService;
     private final AppDatabase mAppDatabase;
     private final AppExecutors mExecutors;
@@ -31,7 +29,6 @@ public class RecipeRepository implements Repository<RecipeView>, Callback<List<R
     @Inject
     public RecipeRepository(BakingWebService bakingWebService, AppDatabase appDatabase,
                             AppExecutors appExecutors) {
-        mRecipesList = new MutableLiveData<>();
         mBakingWebService = bakingWebService;
         mAppDatabase = appDatabase;
         mExecutors = appExecutors;
@@ -39,18 +36,22 @@ public class RecipeRepository implements Repository<RecipeView>, Callback<List<R
     }
 
     @Override
-    public LiveData<List<RecipeView>> findAll() {
+    public LiveData<List<RecipeView>> findAllRecipes() {
         return mAppDatabase.recipeViewDao().findAll();
     }
 
     @Override
-    public LiveData<RecipeView> findOneById(Long id) {
+    public LiveData<RecipeView> findRecipeById(Long id) {
         return mAppDatabase.recipeViewDao().findOneById(id);
     }
 
     @Override
-    public RecipeView findOneByIdSync(Long id) {
+    public RecipeView findRecipeByIdSync(Long id) {
         return mAppDatabase.recipeViewDao().findOneByIdSync(id);
+    }
+
+    public LiveData<Step> findStepById(Long recipeId, Long stepId) {
+        return mAppDatabase.stepDao().findOneById(recipeId, stepId);
     }
 
     private void loadData() {

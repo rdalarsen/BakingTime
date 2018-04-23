@@ -23,27 +23,33 @@ public class BakingViewModel extends ViewModel {
     private static final int NEXT = 0;
     private static final int PREVIOUS = 1;
 
-    private final MutableLiveData<Long> mRecipeId;
-    private final MutableLiveData<Step> mChosenStep;
-    private final MutableLiveData<Boolean> mStepButtonClicked;
-    private final MediatorLiveData<RecipeView> mChosenRecipe;
-    private final Repository<RecipeView> mRecipeRepository;
+    private final MutableLiveData<Long> mRecipeId = new MutableLiveData<>();
+    private final MediatorLiveData<RecipeView> mChosenRecipe = new MediatorLiveData<>();
+
+    private final MutableLiveData<Step> mStep = new MutableLiveData<>();
+    private final MutableLiveData<Long> mStepId = new MutableLiveData<>();
+    private final MediatorLiveData<Step> mChosenStep = new MediatorLiveData<>();
+    private final MutableLiveData<Boolean> mStepButtonClicked = new MutableLiveData<>();
+
+    private final Repository mRecipeRepository;
 
     @Inject
-    public BakingViewModel(Repository<RecipeView> recipeRepository) {
-        mRecipeId = new MutableLiveData<>();
-        mChosenStep = new MutableLiveData<>();
-        mStepButtonClicked = new MutableLiveData<>();
+    public BakingViewModel(Repository recipeRepository) {
         mRecipeRepository = recipeRepository;
-        Timber.e("Repository hashCode: %d", mRecipeRepository.hashCode());
-        mChosenRecipe = new MediatorLiveData<>();
         mChosenRecipe.addSource(
-                Transformations.switchMap(mRecipeId, mRecipeRepository::findOneById),
+                Transformations.switchMap(mRecipeId, mRecipeRepository::findRecipeById),
                 mChosenRecipe::setValue);
+        mChosenStep.addSource(
+                Transformations.switchMap(mStepId, stepId ->
+                        mRecipeRepository.findStepById(mRecipeId.getValue(), stepId)),
+                mChosenStep::setValue);
+        mChosenStep.addSource(
+                mStep,
+                mChosenStep::setValue);
     }
 
     public LiveData<List<RecipeView>> getAllRecipes() {
-        return mRecipeRepository.findAll();
+        return mRecipeRepository.findAllRecipes();
     }
 
     public LiveData<RecipeView> getChosenRecipe() {
@@ -56,12 +62,21 @@ public class BakingViewModel extends ViewModel {
         }
     }
 
-    public void setChosenStep(Step step) {
+    public void setStep(Step step) {
         if (!step.equals(mChosenStep.getValue())){
-            mChosenStep.setValue(step);
+            mStep.setValue(step);
         } else {
             Timber.e("Steps are identical; not updating");
         }
+    }
+
+    public void setStep(long stepId) {
+        Timber.i("Finding step by ID...");
+        mStepId.setValue(stepId);
+    }
+
+    public LiveData<Step> getStep() {
+        return mChosenStep;
     }
 
     public void setStepButtonClicked(boolean stepButtonClicked) {
@@ -92,7 +107,7 @@ public class BakingViewModel extends ViewModel {
 
     private void goToNextOrPrevious(int nextOrPrevious, StepDetails stepDetails) {
         RecipeView recipeView = mChosenRecipe.getValue();
-        Step chosenStep = mChosenStep.getValue();
+        Step chosenStep = mStep.getValue();
 
         // Account for when app has been killed in the background in phone mode w/ detailsfragment active
         if (chosenStep == null) {
@@ -103,9 +118,9 @@ public class BakingViewModel extends ViewModel {
             int index = recipeView.getIndexOfStep(chosenStep);
 
             if (nextOrPrevious == NEXT && index < (recipeView.mSteps.size() - 1)) {
-                mChosenStep.setValue(recipeView.mSteps.get(index + 1));
+                mStep.setValue(recipeView.mSteps.get(index + 1));
             } else if (nextOrPrevious == PREVIOUS && index > 0) {
-                mChosenStep.setValue(recipeView.mSteps.get(index - 1));
+                mStep.setValue(recipeView.mSteps.get(index - 1));
             }
         }
     }

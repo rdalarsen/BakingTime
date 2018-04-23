@@ -4,12 +4,17 @@ import android.arch.lifecycle.LiveData;
 
 import java.util.List;
 
-public interface Repository<T> {
+import me.worric.bakingtime.data.db.models.RecipeView;
+import me.worric.bakingtime.data.models.Step;
 
-    LiveData<List<T>> findAll();
+public interface Repository {
 
-    LiveData<T> findOneById(Long id);
+    LiveData<List<RecipeView>> findAllRecipes();
 
-    T findOneByIdSync(Long id);
+    LiveData<RecipeView> findRecipeById(Long id);
+
+    RecipeView findRecipeByIdSync(Long id);
+
+    LiveData<Step> findStepById(Long recipeId, Long stepId);
 
 }

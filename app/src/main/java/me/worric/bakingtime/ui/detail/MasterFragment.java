@@ -155,7 +155,7 @@ public class MasterFragment extends BaseFragment {
         mIngredientsAdapter = new IngredientsAdapter();
         mStepsAdapter = new StepsAdapter((step) -> {
             mViewModel.setStepButtonClicked(true);
-            mViewModel.setChosenStep(step);
+            mViewModel.setStep(step);
             mStepListState = mManager.onSaveInstanceState();
             mListener.onStepClick(step);
         }, mIsTabletMode, getContext());
@@ -185,7 +185,7 @@ public class MasterFragment extends BaseFragment {
             // If we're in tablet mode on the first run, load the first step of the recipe automatically
             if (mIsTabletMode && mIsFirstRun) {
                 Timber.i("Setting chosen step on first run in tablet mode");
-                mViewModel.setChosenStep(recipeView.mSteps.get(0));
+                mViewModel.setStep(recipeView.mSteps.get(0));
                 mIsFirstRun = false;
             }
         });
