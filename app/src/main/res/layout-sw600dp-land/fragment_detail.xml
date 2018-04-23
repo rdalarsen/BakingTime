@@ -11,24 +11,29 @@
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/detail_exoplayer"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="h,16:9"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/tv_detail_step_instructions"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/detail_exoplayer"
         app:layout_constraintStart_toStartOf="@+id/detail_exoplayer"
         app:layout_constraintTop_toBottomOf="@+id/detail_exoplayer"
-        android:text="Choose a step to the left to begin"
-        android:gravity="center"
-        android:textAlignment="center"
+        app:layout_constraintVertical_bias="0.2"
+        app:layout_constrainedHeight="true"
+        android:text="@string/detail_fragment_tablet_introductory_text"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textStyle="italic" />
+        app:autoSizeMaxTextSize="22sp"
+        app:autoSizeMinTextSize="14sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform" />
 
 </android.support.constraint.ConstraintLayout>

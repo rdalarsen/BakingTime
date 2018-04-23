@@ -10,9 +10,9 @@
     <Button
         android:id="@+id/btn_detail_swap_steps_ingredients"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?android:listPreferredItemHeight"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:text="Show ingredients" />
+        android:text="@string/btn_master_fragment_default_text" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_master_fragment_steps"
