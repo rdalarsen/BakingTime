@@ -32,7 +32,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
     public StepsAdapter(MasterFragment.StepClickListener listener, boolean isTabletMode, Context context) {
         mListener = listener;
         mIsTabletMode = isTabletMode;
-        mHighlightColor = ContextCompat.getColor(context, R.color.colorAccent);
+        mHighlightColor = ContextCompat.getColor(context, R.color.colorAccent_40);
         mRestoreColor = ContextCompat.getColor(context, android.R.color.transparent);
     }
 
