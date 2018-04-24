@@ -138,9 +138,9 @@ public class MasterFragment extends BaseFragment {
 
     private void updateButtonText() {
         if (mIsShowingIngredients) {
-            mToggleContentButton.setText(R.string.btn_detail_show_steps);
+            mToggleContentButton.setText(R.string.master_frag_btn_show_steps);
         } else {
-            mToggleContentButton.setText(R.string.btn_detail_show_ingredients);
+            mToggleContentButton.setText(R.string.master_frag_btn_show_ingredients);
         }
     }
 

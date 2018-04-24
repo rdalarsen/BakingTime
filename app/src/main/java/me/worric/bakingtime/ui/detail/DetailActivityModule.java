@@ -1,6 +1,7 @@
 package me.worric.bakingtime.ui.detail;
 
 import android.content.Context;
+import android.support.v4.app.FragmentManager;
 
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -35,6 +36,12 @@ public abstract class DetailActivityModule {
     @ActivityScope
     static ExtractorMediaSource.Factory provideMediaSource(DataSource.Factory dataSourceFactory) {
         return new ExtractorMediaSource.Factory(dataSourceFactory);
+    }
+
+    @Provides
+    @ActivityScope
+    static FragmentManager provideFragmentManager(DetailActivity detailActivity) {
+        return detailActivity.getSupportFragmentManager();
     }
 
     @ContributesAndroidInjector

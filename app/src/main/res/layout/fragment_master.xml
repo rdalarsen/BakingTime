@@ -12,12 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="?android:listPreferredItemHeight"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:text="@string/btn_master_fragment_default_text" />
+        android:text="@string/master_frag_btn_default_text" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_master_fragment_steps"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/list_item_master"/>
+        tools:listitem="@layout/list_item_master" />
 
 </LinearLayout>

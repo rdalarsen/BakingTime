@@ -29,7 +29,7 @@
         app:layout_constraintTop_toBottomOf="@+id/detail_exoplayer"
         app:layout_constraintVertical_bias="0.2"
         app:layout_constrainedHeight="true"
-        android:text="@string/detail_fragment_tablet_introductory_text"
+        android:text="@string/detail_frag_intro_text"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:autoSizeMaxTextSize="22sp"
         app:autoSizeMinTextSize="14sp"

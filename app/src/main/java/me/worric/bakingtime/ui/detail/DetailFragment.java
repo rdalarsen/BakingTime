@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -39,6 +40,8 @@ public class DetailFragment extends BaseFragment {
 
     @Inject
     protected ExtractorMediaSource.Factory mMediaSourceFactory;
+    @Inject
+    protected FragmentManager mFragmentManager;
     @Nullable @BindView(R.id.tv_detail_step_instructions)
     protected TextView mInstructions;
     @Nullable @BindView(R.id.btn_detail_previous)
@@ -190,6 +193,12 @@ public class DetailFragment extends BaseFragment {
         if (!mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
         mNavButtonClicked = true;
         mViewModel.goToStep(BakingViewModel.NEXT);
+    }
+
+    @Optional
+    @OnClick(R.id.btn_detail_back)
+    protected void handleBackButtonClick(View v) {
+        mFragmentManager.popBackStack();
     }
 
     @Optional
