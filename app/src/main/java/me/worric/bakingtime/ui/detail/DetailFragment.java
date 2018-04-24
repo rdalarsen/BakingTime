@@ -96,8 +96,8 @@ public class DetailFragment extends BaseFragment {
 
             if (mIsTabletMode) {
                 boolean clickEventIsNull = mViewModel.getStepButtonClicked().getValue() == null;
-                boolean stepButtonClicked = clickEventIsNull ?
-                        false : mViewModel.getStepButtonClicked().getValue();
+                boolean stepButtonClicked =
+                        clickEventIsNull ? false : mViewModel.getStepButtonClicked().getValue();
                 Timber.d("First run: %s - stepButtonClicked: %s",
                         isFirstRun, stepButtonClicked);
                 if (isFirstRun || stepButtonClicked) {

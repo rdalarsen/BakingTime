@@ -52,14 +52,14 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
             if (recipeView != null) getSupportActionBar().setTitle(recipeView.mRecipe.getName());
         });
-        Timber.d("Setting chosen recipe");
+        Timber.i("Setting chosen recipe");
         mViewModel.setChosenRecipe(recipeId);
 
         // If app process has been killed in the background, we should restore ViewModel
         if (savedInstanceState != null) {
             if (mViewModel.getStep().getValue() == null) {
                 Long stepId = savedInstanceState.getLong(EXTRA_STEP_ID, INVALID_STEP_ID);
-                Timber.i("Step ID = %d, %s restoring", stepId, stepId == INVALID_STEP_ID ? "NOT" : "");
+                Timber.i("Step ID: %d, %s restoring chosen step!", stepId, stepId == INVALID_STEP_ID ? "NOT" : "");
                 if (stepId != INVALID_STEP_ID) {
                     mViewModel.setStep(stepId);
                 }
