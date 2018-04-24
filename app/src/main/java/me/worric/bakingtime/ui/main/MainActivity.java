@@ -5,6 +5,8 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private BakingViewModel mViewModel;
     private RecipeAdapter mAdapter;
 
+    // Testing
+    private CountingIdlingResource mIdlingResource = new CountingIdlingResource(MainActivity.class.getName());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AndroidInjection.inject(this);
@@ -45,11 +50,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewModel(final Bundle savedInstanceState) {
         mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
+
+        mIdlingResource.increment();
+
         mViewModel.getAllRecipes().observe(this, recipesViews -> {
             if (recipesViews == null) return;
             mAdapter.swapData(recipesViews);
             restoreLayoutManagerState(savedInstanceState);
+
+            mIdlingResource.decrement();
         });
+    }
+
+    @VisibleForTesting
+    public CountingIdlingResource getIdlingResource() {
+        return mIdlingResource;
     }
 
     private void setupRecyclerView() {
