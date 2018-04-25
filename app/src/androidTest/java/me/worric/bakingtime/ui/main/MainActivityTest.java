@@ -1,7 +1,5 @@
 package me.worric.bakingtime.ui.main;
 
-import android.app.Activity;
-import android.app.Instrumentation;
 import android.support.test.espresso.IdlingRegistry;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
@@ -22,15 +20,12 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static android.support.test.espresso.intent.Intents.intended;
-import static android.support.test.espresso.intent.Intents.intending;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtraWithKey;
-import static android.support.test.espresso.intent.matcher.IntentMatchers.isInternal;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.toPackage;
 import static android.support.test.espresso.matcher.ViewMatchers.hasChildCount;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -42,11 +37,6 @@ public class MainActivityTest {
 
     @Rule
     public IntentsTestRule<MainActivity> mIntentsTestRule = new IntentsTestRule<>(MainActivity.class);
-
-    @Before
-    public void stubAllExternalIntents() {
-        intending(not(isInternal())).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
-    }
 
     @Before
     public void setUp() {

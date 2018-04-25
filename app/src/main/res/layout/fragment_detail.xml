@@ -17,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:background="?android:selectableItemBackgroundBorderless"
         android:text="@string/detail_frag_btn_back" />
 
     <com.google.android.exoplayer2.ui.PlayerView
@@ -52,7 +51,6 @@
         app:layout_constraintEnd_toEndOf="@+id/detail_exoplayer"
         app:layout_constraintBottom_toBottomOf="parent"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:background="?android:selectableItemBackgroundBorderless"
         android:text="@string/detail_frag_btn_next" />
 
     <Button
@@ -63,7 +61,6 @@
         app:layout_constraintEnd_toStartOf="@+id/btn_detail_next"
         app:layout_constraintBottom_toBottomOf="parent"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:background="?android:selectableItemBackgroundBorderless"
         android:text="@string/detail_frag_btn_previous" />
 
 </android.support.constraint.ConstraintLayout>

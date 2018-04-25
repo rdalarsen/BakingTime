@@ -24,9 +24,10 @@ import timber.log.Timber;
 public class DetailActivity extends AppCompatActivity implements HasSupportFragmentInjector,
         MasterFragment.StepClickListener {
 
+    private static final String EXTRA_STEP_ID = "me.worric.bakingtime.extra_step_id";
     private static final long INVALID_STEP_ID = -1L;
     public static final String EXTRA_RECIPE_ID = "me.worric.bakingtime.extra_recipe_id";
-    private static final String EXTRA_STEP_ID = "me.worric.bakingtime.extra_step_id";
+    private static final long INVALID_RECIPE_ID = -1L;
 
     @Inject
     protected ViewModelProvider.Factory mFactory;
@@ -46,7 +47,7 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
 
         mTabletMode = getResources().getBoolean(R.bool.tablet_mode);
 
-        Long recipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, -1L);
+        Long recipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, INVALID_RECIPE_ID);
         mViewModel = ViewModelProviders.of(this, mFactory)
                 .get(BakingViewModel.class);
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
