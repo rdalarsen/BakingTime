@@ -37,3 +37,8 @@ Aside from the core project requirements set forth by Udacity, this project stan
 - General advice on how to use ExoPlayer from [this article](https://android.jlelse.eu/android-exoplayer-starters-guide-6350433f256c)
 - Much inspiration on MVVM from Google's [codelab](https://codelabs.developers.google.com/codelabs/build-app-with-arch-components/index.html?index=..%2F..%2Findex#0)
 - Info on Room relationships from [this article](https://android.jlelse.eu/android-architecture-components-room-relationships-bf473510c14a)
+- How to set intents on activity under test from [this blog post](http://blog.xebia.com/android-intent-extras-espresso-rules/)
+- How to write custom matcher for testing background color of a view from [this SO answer](https://stackoverflow.com/a/47143659) (adapted)
+- Targeting individual tests for phone and tablet respectively from [this article](https://medium.com/@aitorvs/espresso-do-not-assume-just-annotate-9066cb77106e)
+- Commit messages format and content from [this guide](http://udacity.github.io/git-styleguide/)
+
