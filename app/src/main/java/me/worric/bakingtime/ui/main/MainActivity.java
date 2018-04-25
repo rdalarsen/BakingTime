@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private RecipeAdapter mAdapter;
 
     // Testing
-    private CountingIdlingResource mIdlingResource = new CountingIdlingResource(MainActivity.class.getName());
+    private CountingIdlingResource mIdlingResource =
+            new CountingIdlingResource(MainActivity.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
         mIdlingResource.increment();
 
         mViewModel.getAllRecipes().observe(this, recipesViews -> {
-            if (recipesViews == null) return;
+            if (recipesViews == null || recipesViews.size() == 0) return;
+
             mAdapter.swapData(recipesViews);
             restoreLayoutManagerState(savedInstanceState);
 
@@ -77,11 +79,10 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayoutManager.VERTICAL, false));
         }
 
-        RecipeAdapter.RecipeClickListener listener = recipeView -> {
+        mAdapter = new RecipeAdapter(recipeView -> {
             Intent intent = DetailActivity.newIntent(this, recipeView.mRecipe.getId());
             startActivity(intent);
-        };
-        mAdapter = new RecipeAdapter(listener);
+        });
         mRecipeList.setAdapter(mAdapter);
     }
 

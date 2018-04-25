@@ -40,9 +40,6 @@ public class MainActivityTest {
 
     private IdlingResource mIdlingResource;
 
-    /*@Rule
-    public ActivityTestRule<MainActivity> mTestRule = new ActivityTestRule<>(MainActivity.class);*/
-
     @Rule
     public IntentsTestRule<MainActivity> mIntentsTestRule = new IntentsTestRule<>(MainActivity.class);
 
