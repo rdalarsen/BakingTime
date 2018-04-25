@@ -20,7 +20,7 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static android.support.test.espresso.intent.Intents.intended;
-import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtraWithKey;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.toPackage;
 import static android.support.test.espresso.matcher.ViewMatchers.hasChildCount;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -31,48 +31,57 @@ import static org.hamcrest.Matchers.allOf;
 @LargeTest
 public class MainActivityTest {
 
-    public static final String PACKAGE = "me.worric.bakingtime";
+    private static final Long RECIPE_ID_NUTELLA_PIE = 1L;
+    private static final String PACKAGE = "me.worric.bakingtime";
+    private static final int NUM_RECIPES = 4;
+    private static final int FIRST_POSITION = 0;
 
     private IdlingResource mIdlingResource;
 
     @Rule
-    public IntentsTestRule<MainActivity> mIntentsTestRule = new IntentsTestRule<>(MainActivity.class);
+    public IntentsTestRule<MainActivity> mIntentsTestRule =
+            new IntentsTestRule<>(MainActivity.class);
 
     @Before
-    public void setUp() {
+    public void registerIdlingResource() {
         mIdlingResource = mIntentsTestRule.getActivity().getIdlingResource();
         IdlingRegistry.getInstance().register(mIdlingResource);
     }
 
     @Test
-    public void recipeList_isDisplayedOnStartup() {
-        onView(withId(R.id.rv_recipe_list)).check(matches(isDisplayed()));
+    public void onLaunch_recipeListIsDisplayed() {
+        onView(withId(R.id.rv_recipe_list))
+                .check(matches(isDisplayed()));
     }
 
     @Test
-    public void recipeList_hasExactlyFourRecipes() {
-        onView(withId(R.id.rv_recipe_list)).check(matches(hasChildCount(4)));
+    public void onLaunch_recipeListHasExactlyFourRecipes() {
+        onView(withId(R.id.rv_recipe_list))
+                .check(matches(hasChildCount(NUM_RECIPES)));
     }
 
     @Test
-    public void clickOnFirstEntry_sendsCorrectIntent() {
-        onView(withId(R.id.rv_recipe_list)).perform(actionOnItemAtPosition(0, click()));
+    public void onClick_firstEntrySendsCorrectIntent() {
+        onView(withId(R.id.rv_recipe_list))
+                .perform(actionOnItemAtPosition(FIRST_POSITION, click()));
 
         intended(allOf(
-                hasExtraWithKey(DetailActivity.EXTRA_RECIPE_ID),
+                hasExtra(DetailActivity.EXTRA_RECIPE_ID, RECIPE_ID_NUTELLA_PIE),
                 toPackage(PACKAGE)
         ));
     }
 
     @Test
-    public void clickOnFirstEntry_navigatesToDetailActivityWithMasterFragment() {
-        onView(withId(R.id.rv_recipe_list)).perform(actionOnItemAtPosition(0, click()));
+    public void onClick_firstEntryNavigatesToDetailActivityWithMasterFragment() {
+        onView(withId(R.id.rv_recipe_list))
+                .perform(actionOnItemAtPosition(FIRST_POSITION, click()));
 
-        onView(withId(R.id.rv_master_fragment_steps)).check(matches(isDisplayed()));
+        onView(withId(R.id.rv_master_fragment_steps))
+                .check(matches(isDisplayed()));
     }
 
     @After
-    public void tearDown() {
+    public void unregisterIdlingResource() {
         IdlingRegistry.getInstance().unregister(mIdlingResource);
     }
 }

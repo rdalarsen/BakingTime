@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
@@ -53,7 +54,7 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
             if (recipeView != null) getSupportActionBar().setTitle(recipeView.mRecipe.getName());
         });
-        Timber.i("Setting chosen recipe");
+        Timber.i("Setting chosen recipe with ID: %d", recipeId);
         mViewModel.setChosenRecipe(recipeId);
 
         // If app process has been killed in the background, we should restore ViewModel
@@ -101,4 +102,10 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
                     .commit();
         }
     }
+
+    @VisibleForTesting
+    public boolean getIsTablet() {
+        return mTabletMode;
+    }
+
 }
