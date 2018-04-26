@@ -19,8 +19,8 @@ import me.worric.bakingtime.ui.GlideApp;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHolder> {
 
+    private final RecipeClickListener mListener;
     private List<RecipeView> mRecipes;
-    private RecipeClickListener mListener;
 
     public RecipeAdapter(@NonNull RecipeClickListener listener) {
         mListener = listener;

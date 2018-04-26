@@ -92,7 +92,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         @BindView(R.id.tv_master_step_number)
         TextView mStepNumber;
 
-        public StepsViewHolder(View itemView) {
+        StepsViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

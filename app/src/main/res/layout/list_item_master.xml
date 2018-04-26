@@ -16,6 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintDimensionRatio="w,1:1"
+        android:contentDescription="@string/master_frag_recipe_thumb_content_desc"
         tools:src="@tools:sample/avatars" />
 
     <TextView

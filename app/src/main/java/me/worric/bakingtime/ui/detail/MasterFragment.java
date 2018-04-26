@@ -120,7 +120,7 @@ public class MasterFragment extends BaseFragment {
     // Helper/onClick methods
 
     @OnClick(R.id.btn_detail_swap_steps_ingredients)
-    public void handleToggleIngredientsClick(View view) {
+    public void handleToggleIngredientsClick(View v) {
         if (mIsShowingIngredients) {
             mIngredientsListState = mManager.onSaveInstanceState();
             mContentList.setAdapter(mStepsAdapter);

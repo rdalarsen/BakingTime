@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private RecipeAdapter mAdapter;
 
     // Testing
-    private CountingIdlingResource mIdlingResource =
+    private final CountingIdlingResource mIdlingResource =
             new CountingIdlingResource(MainActivity.class.getName());
 
     @Override
@@ -62,11 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
             mIdlingResource.decrement();
         });
-    }
-
-    @VisibleForTesting
-    public CountingIdlingResource getIdlingResource() {
-        return mIdlingResource;
     }
 
     private void setupRecyclerView() {
@@ -102,6 +97,11 @@ public class MainActivity extends AppCompatActivity {
         Parcelable savedLayoutManagerState = savedInstanceState
                 .getParcelable(EXTRA_LAYOUT_MANAGER_STATE);
         mRecipeList.getLayoutManager().onRestoreInstanceState(savedLayoutManagerState);
+    }
+
+    @VisibleForTesting
+    public CountingIdlingResource getIdlingResource() {
+        return mIdlingResource;
     }
 
 }

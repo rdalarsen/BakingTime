@@ -54,7 +54,7 @@ public class DetailActivityTest {
     private boolean mIsTablet;
 
     @Rule
-    public ActivityTestRule<DetailActivity> mActivityTestRule =
+    public final ActivityTestRule<DetailActivity> mActivityTestRule =
             new ActivityTestRule<DetailActivity>(DetailActivity.class) {
                 @Override
                 protected Intent getActivityIntent() {
@@ -68,7 +68,7 @@ public class DetailActivityTest {
 
     @Before
     public void checkTabletOrPhoneMode() {
-        mIsTablet = mActivityTestRule.getActivity().getIsTablet();
+        mIsTablet = mActivityTestRule.getActivity().isTabletMode();
     }
 
     @Test

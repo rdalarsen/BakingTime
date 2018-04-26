@@ -17,12 +17,22 @@
     <!-- Widget -->
     <string name="widget_ingredient_format_string">%s: %s %s</string>
 
+    <!-- Main activity -->
+    <string name="recipe_card_content_desc">Header image</string>
+
     <!-- Detail activity -->
     <string name="detail_frag_btn_next">Next</string>
     <string name="detail_frag_btn_previous">Previous</string>
     <string name="detail_frag_btn_back">Back to steps</string>
     <string name="detail_frag_intro_text">Choose a step to the left to begin</string>
+    <string name="detail_frag_exoplayer_previous_content_desc">Previous</string>
+    <string name="detail_frag_exoplayer_play_content_desc">Play</string>
+    <string name="detail_frag_exoplayer_pause_content_desc">Pause</string>
     <string name="master_frag_btn_default_text">Show ingredients</string>
-    <string name="master_frag_btn_show_steps">Show Steps</string>
-    <string name="master_frag_btn_show_ingredients">Show Ingredients</string>
+    <string name="master_frag_btn_show_steps">Show steps</string>
+    <string name="master_frag_btn_show_ingredients">Show ingredients</string>
+    <string name="master_frag_recipe_thumb_content_desc">Recipe thumbnail</string>
+
+    <!-- Widget -->
+    <string name="widget_config_intro_text">Choose a recipe to display its ingredients in the widget</string>
 </resources>

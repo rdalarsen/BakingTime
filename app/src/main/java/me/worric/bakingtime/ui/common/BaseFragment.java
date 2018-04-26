@@ -19,7 +19,8 @@ import timber.log.Timber;
 
 public abstract class BaseFragment extends Fragment {
 
-    @Inject protected ViewModelProvider.Factory mFactory;
+    @Inject
+    protected ViewModelProvider.Factory mFactory;
 
     private Unbinder mUnbinder;
     protected boolean mIsLandscapeMode;

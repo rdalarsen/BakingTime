@@ -16,6 +16,7 @@
         app:layout_constraintEnd_toStartOf="@+id/exo_play"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/detail_frag_exoplayer_previous_content_desc"
         style="@style/ExoMediaButton.Previous" />
 
     <ImageButton
@@ -26,6 +27,7 @@
         app:layout_constraintEnd_toStartOf="@+id/exo_pause"
         app:layout_constraintStart_toEndOf="@+id/exo_prev"
         app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/detail_frag_exoplayer_play_content_desc"
         style="@style/ExoMediaButton.Play" />
 
     <ImageButton
@@ -36,6 +38,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/exo_play"
         app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/detail_frag_exoplayer_pause_content_desc"
         style="@style/ExoMediaButton.Pause" />
 
     <TextView

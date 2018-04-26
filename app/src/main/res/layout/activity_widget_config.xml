@@ -10,7 +10,7 @@
         android:textAlignment="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Choose a recipe to display its ingredients in the widget"/>
+        android:text="@string/widget_config_intro_text"/>
 
     <include
         android:layout_width="match_parent"

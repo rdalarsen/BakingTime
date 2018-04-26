@@ -104,7 +104,7 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
     }
 
     @VisibleForTesting
-    public boolean getIsTablet() {
+    public boolean isTabletMode() {
         return mTabletMode;
     }
 

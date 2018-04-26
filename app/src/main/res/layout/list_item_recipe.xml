@@ -23,6 +23,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            android:contentDescription="@string/recipe_card_content_desc"
             tools:scaleType="center"
             tools:src="@tools:sample/backgrounds/scenic" />
 
