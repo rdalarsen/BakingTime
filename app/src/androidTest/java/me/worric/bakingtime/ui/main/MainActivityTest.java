@@ -22,7 +22,7 @@ import static android.support.test.espresso.contrib.RecyclerViewActions.actionOn
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.toPackage;
-import static android.support.test.espresso.matcher.ViewMatchers.hasChildCount;
+import static android.support.test.espresso.matcher.ViewMatchers.hasMinimumChildCount;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
@@ -33,7 +33,7 @@ public class MainActivityTest {
 
     private static final Long RECIPE_ID_NUTELLA_PIE = 1L;
     private static final String PACKAGE = "me.worric.bakingtime";
-    private static final int NUM_RECIPES = 4;
+    private static final int MIN_NUM_RECIPES = 1;
     private static final int FIRST_POSITION = 0;
 
     private IdlingResource mIdlingResource;
@@ -55,9 +55,9 @@ public class MainActivityTest {
     }
 
     @Test
-    public void onLaunch_recipeListHasExactlyFourRecipes() {
+    public void onLaunch_recipeListHasMinimumOneRecipe() {
         onView(withId(R.id.rv_recipe_list))
-                .check(matches(hasChildCount(NUM_RECIPES)));
+                .check(matches(hasMinimumChildCount(MIN_NUM_RECIPES)));
     }
 
     @Test
