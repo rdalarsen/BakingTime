@@ -6,7 +6,7 @@
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
     android:layout_gravity="bottom"
-    android:background="@color/colorAccent_40">
+    android:background="@color/colorAccent_opacity_40">
 
     <ImageButton
         android:id="@+id/exo_prev"

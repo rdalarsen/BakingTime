@@ -2,6 +2,7 @@ package me.worric.bakingtime.ui.detail;
 
 import android.content.Context;
 import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -29,10 +30,10 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
     @ColorInt private final int mHighlightColor;
     @ColorInt private final int mRestoreColor;
 
-    public StepsAdapter(MasterFragment.StepClickListener listener, boolean isTabletMode, Context context) {
+    StepsAdapter(MasterFragment.StepClickListener listener, boolean isTabletMode, Context context) {
         mListener = listener;
         mIsTabletMode = isTabletMode;
-        mHighlightColor = ContextCompat.getColor(context, R.color.colorAccent_40);
+        mHighlightColor = ContextCompat.getColor(context, R.color.colorAccent);
         mRestoreColor = ContextCompat.getColor(context, android.R.color.transparent);
     }
 
@@ -64,18 +65,26 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         String stepString = context.getString(R.string.list_item_step_num, step.getId());
         holder.mStepNumber.setText(stepString);
         holder.mShortDesc.setText(step.getShortDescription());
-        GlideApp.with(holder.itemView.getContext())
-                .load(step.getThumbnailURL())
-                .into(holder.mThumbnail);
         holder.itemView.setOnClickListener(v -> mListener.onStepClick(step));
 
         if (mIsTabletMode && mStepDetails != null) {
             if (position == mStepDetails.stepIndex) {
                 holder.itemView.setBackgroundColor(mHighlightColor);
+                loadWithGlide(R.drawable.ic_cake_error_white, holder, step);
             } else {
                 holder.itemView.setBackgroundColor(mRestoreColor);
+                loadWithGlide(R.drawable.ic_cake_error, holder, step);
             }
+        } else if (!mIsTabletMode) {
+            loadWithGlide(R.drawable.ic_cake_error, holder, step);
         }
+    }
+
+    private void loadWithGlide(@DrawableRes int errorDrawable, StepsViewHolder viewHolder, Step step) {
+        GlideApp.with(viewHolder.itemView.getContext())
+                .load(step.getThumbnailURL())
+                .error(errorDrawable)
+                .into(viewHolder.mThumbnail);
     }
 
     @Override

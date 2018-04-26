@@ -45,7 +45,7 @@ public class DetailActivityTest {
     private static final String INSTRUCTION_INTRO_TEXT = "Recipe Introduction";
     private static final String STEP_3_INSTRUCTIONS =
             "3. Press the cookie crumb mixture into the prepared pie pan and bake for 12 minutes. Let crust cool to room temperature.";
-    private static final int TARGET_COLOR = R.color.colorAccent_40;
+    private static final int TARGET_COLOR = R.color.colorAccent;
     private static final String STEP_ENTRY_0 = "Step 0";
     private static final String STEP_ENTRY_3 = "Step 3";
     private static final int FIRST_POSITION = 0;

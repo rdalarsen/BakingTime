@@ -6,6 +6,28 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <!--<item name="android:textColorPrimary">@color/primaryText</item>-->
+        <!--<item name="android:textColorSecondary">@color/secondaryText</item>-->
+    </style>
+
+
+    <!-- Unused -->
+    <style name="ColoredButton" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:backgroundTint">@color/colorAccent</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
+    </style>
+
+    <style name="ColoredButtonBorderless" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+    <style name="StepsListPrimaryText" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="StepsListPrimaryTextInverse" parent="TextAppearance.AppCompat.Medium.Inverse">
+        <item name="android:textSize">16sp</item>
     </style>
 
 </resources>
