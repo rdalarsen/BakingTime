@@ -7,19 +7,24 @@
 
     <TextView
         android:id="@+id/widget_cake_name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_action_name"
-        android:drawablePadding="4dp"
-        android:gravity="bottom"
+        android:padding="8dp"
+        android:drawableStart="@drawable/ic_cake_error"
+        android:drawablePadding="8dp"
+        android:background="@drawable/widget_top"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:fontFamily="sans-serif-condensed"
+        android:textSize="24sp"
         android:maxLines="1"
         android:ellipsize="end" />
 
     <ListView
         android:id="@+id/widget_ingredients_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:background="@drawable/widget_content" />
 
 </LinearLayout>
