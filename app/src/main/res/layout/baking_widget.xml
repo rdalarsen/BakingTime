@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,14 +11,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:drawableStart="@drawable/ic_cake_error"
-        android:drawablePadding="8dp"
         android:background="@drawable/widget_top"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:fontFamily="sans-serif-condensed"
-        android:textSize="24sp"
+        android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_cake_error"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:theme="@style/Theme.AppCompat.Light"
+        android:textSize="@dimen/widget_title_text_size"
+        android:ellipsize="end"
         android:maxLines="1"
-        android:ellipsize="end" />
+        tools:text="Nutella Pie" />
 
     <ListView
         android:id="@+id/widget_ingredients_list"
@@ -25,6 +27,7 @@
         android:layout_height="match_parent"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:background="@drawable/widget_content" />
+        android:background="@drawable/widget_content"
+        tools:listitem="@layout/list_item_widget_ingredient" />
 
 </LinearLayout>

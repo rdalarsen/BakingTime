@@ -3,9 +3,9 @@
     android:initialKeyguardLayout="@layout/baking_widget"
     android:configure="me.worric.bakingtime.ui.widget.WidgetConfigActivity"
     android:initialLayout="@layout/baking_widget"
-    android:minHeight="110dp"
-    android:minWidth="110dp"
-    android:previewImage="@drawable/ic_action_name"
+    android:minHeight="@dimen/widget_min_height"
+    android:minWidth="@dimen/widget_min_width"
+    android:previewImage="@drawable/ic_cake_error"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />
