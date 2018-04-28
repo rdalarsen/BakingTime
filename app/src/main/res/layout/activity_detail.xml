@@ -4,6 +4,5 @@
     android:id="@+id/detail_fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.detail.DetailActivity">
-
-</FrameLayout>
+    tools:context=".ui.detail.DetailActivity"
+    tools:ignore="InconsistentLayout,MergeRootFrame" />

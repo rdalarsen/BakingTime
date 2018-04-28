@@ -8,6 +8,7 @@ import me.worric.bakingtime.di.ActivityContext;
 import me.worric.bakingtime.di.ActivityScope;
 import me.worric.bakingtime.ui.viewmodels.ViewModelModule;
 
+@SuppressWarnings("unused")
 @Module(includes = ViewModelModule.class)
 public abstract class MainActivityModule {
 

@@ -8,6 +8,7 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 import me.worric.bakingtime.di.ActivityScope;
 
+@SuppressWarnings("unused")
 @Module
 public abstract class ViewModelModule {
 

@@ -24,13 +24,13 @@ import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 
 import static me.worric.bakingtime.ui.util.UiUtils.EXTRA_LAYOUT_MANAGER_STATE;
 
+@SuppressWarnings("WeakerAccess")
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.rv_recipe_list) protected RecyclerView mRecipeList;
 
     @Inject
     protected ViewModelProvider.Factory mFactory;
-    private BakingViewModel mViewModel;
     private RecipeAdapter mAdapter;
 
     // Testing
@@ -50,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupViewModel(final Bundle savedInstanceState) {
-        mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
+        BakingViewModel viewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
 
         mIdlingResource.increment();
 
-        mViewModel.getAllRecipes().observe(this, recipesViews -> {
+        viewModel.getAllRecipes().observe(this, recipesViews -> {
             if (recipesViews == null || recipesViews.size() == 0) return;
 
             mAdapter.swapData(recipesViews);

@@ -1,24 +1,24 @@
 <resources>
+    <!-- Misc -->
     <string name="app_name">Baking Time</string>
     <string name="app_name_user_agent">bakingTime</string>
     <string name="longest_instruction">9. Whisk together the egg whites and remaining 300 grams
         (1.5 cups) of sugar in the bowl of a stand mixer until combined. Set the bowl over the top
         of the boiling water and continue whisking the egg white mixture until it feels hot to the
         touch and the sugar is totally dissolved (if you have a reliable thermometer, it should
-        read 150\u00b0F). </string>
+        read 150\u00b0F).</string>
 
-    <string name="list_item_step_num">Step %d</string>
+    <!-- Widget -->
+    <string name="widget_ingredient_format_string">%s: %s %s</string>
+    <string name="widget_config_intro_text">Choose a recipe to display its ingredients in the widget</string>
+    <string name="widget_divider">Divider</string>
 
+    <!-- Main activity -->
+    <string name="recipe_card_content_desc">Header image</string>
     <plurals name="list_item_servings">
         <item quantity="one">Serving: %d</item>
         <item quantity="other">Servings: %d</item>
     </plurals>
-
-    <!-- Widget -->
-    <string name="widget_ingredient_format_string">%s: %s %s</string>
-
-    <!-- Main activity -->
-    <string name="recipe_card_content_desc">Header image</string>
 
     <!-- Detail activity -->
     <string name="detail_frag_btn_next">Next</string>
@@ -32,7 +32,6 @@
     <string name="master_frag_btn_show_steps">Show steps</string>
     <string name="master_frag_btn_show_ingredients">Show ingredients</string>
     <string name="master_frag_recipe_thumb_content_desc">Recipe thumbnail</string>
+    <string name="master_frag_list_item_step_num">Step %d</string>
 
-    <!-- Widget -->
-    <string name="widget_config_intro_text">Choose a recipe to display its ingredients in the widget</string>
 </resources>

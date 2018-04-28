@@ -62,7 +62,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         final Step step = mSteps.get(position);
         Context context = holder.itemView.getContext();
 
-        String stepString = context.getString(R.string.list_item_step_num, step.getId());
+        String stepString = context.getString(R.string.master_frag_list_item_step_num, step.getId());
         holder.mStepNumber.setText(stepString);
         holder.mShortDesc.setText(step.getShortDescription());
         holder.itemView.setOnClickListener(v -> mListener.onStepClick(step));

@@ -22,6 +22,7 @@ import me.worric.bakingtime.ui.main.RecipeAdapter;
 import me.worric.bakingtime.ui.util.UiUtils;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 
+@SuppressWarnings("WeakerAccess")
 public class WidgetConfigActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "me.worric.bakingtime.ui.BakingWidgetProvider";
@@ -40,7 +41,6 @@ public class WidgetConfigActivity extends AppCompatActivity {
     @Inject
     protected ViewModelProvider.Factory mFactory;
     private RecipeAdapter mAdapter;
-    private BakingViewModel mViewModel;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -71,8 +71,8 @@ public class WidgetConfigActivity extends AppCompatActivity {
     }
 
     private void setupViewModel() {
-        mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
-        mViewModel.getAllRecipes().observe(this, recipesViews ->
+        BakingViewModel viewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
+        viewModel.getAllRecipes().observe(this, recipesViews ->
                 mAdapter.swapData(recipesViews));
     }
 

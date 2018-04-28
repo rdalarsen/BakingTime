@@ -31,6 +31,7 @@ import me.worric.bakingtime.ui.common.BaseFragment;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
+@SuppressWarnings("WeakerAccess")
 public class DetailFragment extends BaseFragment {
 
     private static final String EXTRA_PLAYER_POSITION = "me.worric.bakingtime.extra_player_state";
@@ -124,19 +125,6 @@ public class DetailFragment extends BaseFragment {
         });
     }
 
-    private void restoreNavButtonsState(StepDetails stepDetails) {
-        if (mStepDetails == null) return;
-
-        if (mInstructions != null) mInstructions.setText(mStepDetails.stepInstructions);
-        if (mPreviousButton != null && mNextButton != null) {
-            if (mStepDetails.stepIndex == 0) {
-                mPreviousButton.setEnabled(false);
-            } else if (mStepDetails.stepIndex == stepDetails.numSteps - 1) {
-                mNextButton.setEnabled(false);
-            }
-        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -189,24 +177,37 @@ public class DetailFragment extends BaseFragment {
 
     @Optional
     @OnClick(R.id.btn_detail_next)
-    protected void handleNextButtonClick(View v) {
-        if (!mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
+    protected void handleNextButtonClick() {
+        if (mPreviousButton != null && !mPreviousButton.isEnabled()) mPreviousButton.setEnabled(true);
         mNavButtonClicked = true;
         mViewModel.goToStep(BakingViewModel.NEXT);
     }
 
     @Optional
-    @OnClick(R.id.btn_detail_back)
-    protected void handleBackButtonClick(View v) {
-        mFragmentManager.popBackStack();
+    @OnClick(R.id.btn_detail_previous)
+    protected void handlePreviousButtonClick() {
+        if (mNextButton != null && !mNextButton.isEnabled()) mNextButton.setEnabled(true);
+        mNavButtonClicked = true;
+        mViewModel.goToStep(BakingViewModel.PREVIOUS);
     }
 
     @Optional
-    @OnClick(R.id.btn_detail_previous)
-    protected void handlePreviousButtonClick(View v) {
-        if (!mNextButton.isEnabled()) mNextButton.setEnabled(true);
-        mNavButtonClicked = true;
-        mViewModel.goToStep(BakingViewModel.PREVIOUS);
+    @OnClick(R.id.btn_detail_back)
+    protected void handleBackButtonClick() {
+        mFragmentManager.popBackStack();
+    }
+
+    private void restoreNavButtonsState(StepDetails stepDetails) {
+        if (mStepDetails == null) return;
+
+        if (mInstructions != null) mInstructions.setText(mStepDetails.stepInstructions);
+        if (mPreviousButton != null && mNextButton != null) {
+            if (mStepDetails.stepIndex == 0) {
+                mPreviousButton.setEnabled(false);
+            } else if (mStepDetails.stepIndex == stepDetails.numSteps - 1) {
+                mNextButton.setEnabled(false);
+            }
+        }
     }
 
     private void savePlayerState() {

@@ -17,6 +17,7 @@ import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
 import timber.log.Timber;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class BaseFragment extends Fragment {
 
     @Inject

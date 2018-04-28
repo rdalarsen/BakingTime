@@ -22,6 +22,7 @@ import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
+@SuppressWarnings("WeakerAccess")
 public class DetailActivity extends AppCompatActivity implements HasSupportFragmentInjector,
         MasterFragment.StepClickListener {
 
@@ -52,7 +53,8 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         mViewModel = ViewModelProviders.of(this, mFactory)
                 .get(BakingViewModel.class);
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
-            if (recipeView != null) getSupportActionBar().setTitle(recipeView.mRecipe.getName());
+            if (recipeView != null && getSupportActionBar() != null) getSupportActionBar()
+                    .setTitle(recipeView.mRecipe.getName());
         });
         Timber.i("Setting chosen recipe with ID: %d", recipeId);
         mViewModel.setChosenRecipe(recipeId);

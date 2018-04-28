@@ -34,7 +34,7 @@ public class AppExecutors {
 
         private final Handler mHandler;
 
-        public MainThreadExecutor() {
+        MainThreadExecutor() {
             mHandler = new Handler(Looper.getMainLooper());
         }
 

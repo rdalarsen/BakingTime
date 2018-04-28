@@ -26,6 +26,7 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+@SuppressWarnings("unused")
 @Module(includes = {AndroidSupportInjectionModule.class, RepositoryModule.class})
 public abstract class AppModule {
 

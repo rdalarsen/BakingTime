@@ -12,6 +12,7 @@ import dagger.android.HasActivityInjector;
 import dagger.android.HasServiceInjector;
 import timber.log.Timber;
 
+@SuppressWarnings("WeakerAccess")
 public class App extends Application implements HasActivityInjector, HasServiceInjector {
 
     @Inject DispatchingAndroidInjector<Activity> activityDispatcher;

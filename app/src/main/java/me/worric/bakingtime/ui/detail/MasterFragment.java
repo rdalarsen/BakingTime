@@ -20,6 +20,7 @@ import me.worric.bakingtime.ui.common.BaseFragment;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
 import timber.log.Timber;
 
+@SuppressWarnings("WeakerAccess")
 public class MasterFragment extends BaseFragment {
 
     private static final String EXTRA_SHOW_INGREDIENTS = "me.worric.bakingtime.extra_show_ingredients";
@@ -120,7 +121,7 @@ public class MasterFragment extends BaseFragment {
     // Helper/onClick methods
 
     @OnClick(R.id.btn_detail_swap_steps_ingredients)
-    public void handleToggleIngredientsClick(View v) {
+    public void handleToggleIngredientsClick() {
         if (mIsShowingIngredients) {
             mIngredientsListState = mManager.onSaveInstanceState();
             mContentList.setAdapter(mStepsAdapter);
@@ -212,6 +213,7 @@ public class MasterFragment extends BaseFragment {
     // Nested interfaces/classes
 
     public interface StepClickListener {
+        @SuppressWarnings("unused")
         void onStepClick(Step step);
     }
 

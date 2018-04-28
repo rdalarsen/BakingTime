@@ -16,6 +16,7 @@ import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.ui.detail.DetailActivity;
 import timber.log.Timber;
 
+@SuppressWarnings("WeakerAccess")
 public class BakingRemoteViewsService extends RemoteViewsService {
 
     @Inject

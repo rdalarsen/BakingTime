@@ -11,6 +11,7 @@ import dagger.Provides;
 import me.worric.bakingtime.data.db.AppDatabase;
 import me.worric.bakingtime.di.AppContext;
 
+@SuppressWarnings("unused")
 @Module
 public abstract class RepositoryModule {
 
