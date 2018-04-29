@@ -11,10 +11,12 @@
     <!-- Widget -->
     <string name="widget_ingredient_format_string">%s: %s %s</string>
     <string name="widget_config_intro_text">Choose a recipe to display its ingredients in the widget</string>
-    <string name="widget_divider">Divider</string>
+
+    <!-- Common -->
+    <string name="divider_ingredients">Divider</string>
 
     <!-- Main activity -->
-    <string name="recipe_card_content_desc">Header image</string>
+    <string name="recipe_card_content_desc">Recipe image</string>
     <plurals name="list_item_servings">
         <item quantity="one">Serving: %d</item>
         <item quantity="other">Servings: %d</item>
@@ -31,6 +33,7 @@
     <string name="master_frag_btn_default_text">Show ingredients</string>
     <string name="master_frag_btn_show_steps">Show steps</string>
     <string name="master_frag_btn_show_ingredients">Show ingredients</string>
+    <string name="master_frag_btn_enter_fullscreen">Enter fullscreen</string>
     <string name="master_frag_recipe_thumb_content_desc">Recipe thumbnail</string>
     <string name="master_frag_list_item_step_num">Step %d</string>
 

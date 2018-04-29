@@ -19,7 +19,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     private List<Ingredient> mIngredients;
 
-    public IngredientsAdapter() {}
+    IngredientsAdapter() {}
 
     public void swapIngredients(List<Ingredient> ingredients) {
         mIngredients = ingredients;
@@ -30,7 +30,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     @Override
     public IngredientsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(android.R.layout.simple_list_item_1, parent, false);
+                .inflate(R.layout.list_item_ingredients, parent, false);
         return new IngredientsViewHolder(v);
     }
 
@@ -50,7 +50,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     static class IngredientsViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(android.R.id.text1)
+        @BindView(R.id.tv_list_ingredient_text)
         TextView mIngredients;
 
         IngredientsViewHolder(View itemView) {

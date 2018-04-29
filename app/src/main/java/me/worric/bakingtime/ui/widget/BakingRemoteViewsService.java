@@ -61,14 +61,14 @@ public class BakingRemoteViewsService extends RemoteViewsService {
             Ingredient ingredient = mRecipeView.mIngredients.get(position);
 
             RemoteViews rv = new RemoteViews(mContext.getPackageName(),
-                    R.layout.list_item_widget_ingredient);
+                    R.layout.list_item_ingredients);
             String ingredientText = mContext.getString(R.string.widget_ingredient_format_string,
                     ingredient.getIngredient(), Double.toString(ingredient.getQuantity()), ingredient.getMeasure());
-            rv.setTextViewText(R.id.tv_widget_list_text, ingredientText);
+            rv.setTextViewText(R.id.tv_list_ingredient_text, ingredientText);
 
             Intent fillInIntent = new Intent();
             fillInIntent.putExtra(DetailActivity.EXTRA_RECIPE_ID, mRecipeView.mRecipe.getId());
-            rv.setOnClickFillInIntent(R.id.tv_widget_list_text, fillInIntent);
+            rv.setOnClickFillInIntent(R.id.tv_list_ingredient_text, fillInIntent);
 
             return rv;
         }

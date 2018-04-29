@@ -28,6 +28,6 @@
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:background="@drawable/widget_content"
-        tools:listitem="@layout/list_item_widget_ingredient" />
+        tools:listitem="@layout/list_item_ingredients" />
 
 </LinearLayout>

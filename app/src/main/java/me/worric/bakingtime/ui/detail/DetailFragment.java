@@ -1,6 +1,7 @@
 package me.worric.bakingtime.ui.detail;
 
 
+import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,7 +10,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -49,11 +52,14 @@ public class DetailFragment extends BaseFragment {
     protected Button mPreviousButton;
     @Nullable @BindView(R.id.btn_detail_next)
     protected Button mNextButton;
+    @Nullable @BindView(R.id.player_container)
+    protected LinearLayout mPlayerContainer;
     @BindView(R.id.detail_exoplayer)
     protected PlayerView mPlayerView;
 
     private BakingViewModel mViewModel;
     private SimpleExoPlayer mExoPlayer;
+    private Dialog mFullscreenDialog;
 
     private StepDetails mStepDetails;
     private boolean mNavButtonClicked = false;
@@ -73,6 +79,14 @@ public class DetailFragment extends BaseFragment {
             mPlayerPosition = savedInstanceState.getLong(EXTRA_PLAYER_POSITION, START_OF_VIDEO);
             mShouldStartPlaying = savedInstanceState.getBoolean(EXTRA_SHOULD_START_PLAYING, true);
         }
+
+        mFullscreenDialog = new Dialog(getContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+            @Override
+            public void onBackPressed() {
+                exitPlayerFullscreen();
+                super.onBackPressed();
+            }
+        };
     }
 
     @Override
@@ -80,7 +94,11 @@ public class DetailFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         Timber.d("OnViewCreated: called");
 
-        restoreNavButtonsState(mStepDetails);
+        if (isPhoneLandscapeMode()) {
+            enterPlayerFullscreen();
+        }
+
+        restoreNavButtonsAndInstructionTextState();
 
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
         mViewModel.getStepDetails().observe(this, stepDetails -> {
@@ -91,7 +109,7 @@ public class DetailFragment extends BaseFragment {
 
             mStepDetails = stepDetails;
 
-            restoreNavButtonsState(mStepDetails);
+            restoreNavButtonsAndInstructionTextState();
 
             if (mExoPlayer == null) {
                 Timber.e("ExoPlayer is null - let initializePlayer() load media");
@@ -197,14 +215,21 @@ public class DetailFragment extends BaseFragment {
         mFragmentManager.popBackStack();
     }
 
-    private void restoreNavButtonsState(StepDetails stepDetails) {
+    @Optional
+    @OnClick(R.id.btn_detail_enter_fullscreen)
+    protected void handleEnterFullscreen() {
+        enterPlayerFullscreen();
+    }
+
+    private void restoreNavButtonsAndInstructionTextState() {
         if (mStepDetails == null) return;
 
         if (mInstructions != null) mInstructions.setText(mStepDetails.stepInstructions);
+
         if (mPreviousButton != null && mNextButton != null) {
             if (mStepDetails.stepIndex == 0) {
                 mPreviousButton.setEnabled(false);
-            } else if (mStepDetails.stepIndex == stepDetails.numSteps - 1) {
+            } else if (mStepDetails.stepIndex == mStepDetails.numSteps - 1) {
                 mNextButton.setEnabled(false);
             }
         }
@@ -243,6 +268,19 @@ public class DetailFragment extends BaseFragment {
         mExoPlayer.stop();
         mExoPlayer.release();
         mExoPlayer = null;
+    }
+
+    private void enterPlayerFullscreen() {
+        ((ViewGroup) mPlayerView.getParent()).removeView(mPlayerView);
+        mFullscreenDialog.addContentView(mPlayerView,
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mFullscreenDialog.show();
+    }
+
+    private void exitPlayerFullscreen() {
+        ((ViewGroup) mPlayerView.getParent()).removeView(mPlayerView);
+        mPlayerContainer.addView(mPlayerView, 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        mFullscreenDialog.dismiss();
     }
 
     // Base class methods

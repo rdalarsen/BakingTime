@@ -52,4 +52,8 @@ public abstract class BaseFragment extends Fragment {
 
     protected abstract @LayoutRes int getLayout();
 
+    protected boolean isPhoneLandscapeMode() {
+        return !mIsTabletMode && mIsLandscapeMode;
+    }
+
 }
