@@ -15,25 +15,22 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.support.AndroidSupportInjection;
 import me.worric.bakingtime.R;
-import timber.log.Timber;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class BaseFragment extends Fragment {
 
-    @Inject
-    protected ViewModelProvider.Factory mFactory;
+    @Inject protected ViewModelProvider.Factory mFactory;
 
     private Unbinder mUnbinder;
-    protected boolean mIsLandscapeMode;
-    protected boolean mIsTabletMode;
+    protected boolean mLandscapeMode;
+    protected boolean mTabletMode;
 
     @Override
     public void onAttach(Context context) {
         AndroidSupportInjection.inject(this);
         super.onAttach(context);
-        mIsLandscapeMode = context.getResources().getBoolean(R.bool.landscape_mode);
-        mIsTabletMode = context.getResources().getBoolean(R.bool.tablet_mode);
-        Timber.d("Landscape mode: %s, tablet mode is: %s", mIsLandscapeMode, mIsTabletMode);
+        mLandscapeMode = context.getResources().getBoolean(R.bool.landscape_mode);
+        mTabletMode = context.getResources().getBoolean(R.bool.tablet_mode);
     }
 
     @Override
@@ -53,7 +50,7 @@ public abstract class BaseFragment extends Fragment {
     protected abstract @LayoutRes int getLayout();
 
     protected boolean isPhoneLandscapeMode() {
-        return !mIsTabletMode && mIsLandscapeMode;
+        return !mTabletMode && mLandscapeMode;
     }
 
 }

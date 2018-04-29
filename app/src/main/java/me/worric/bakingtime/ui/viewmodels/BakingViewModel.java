@@ -23,11 +23,17 @@ public class BakingViewModel extends ViewModel {
     public static final int NEXT = 0;
     public static final int PREVIOUS = 1;
 
+    // Used as trigger for switchMap transformation
     private final MutableLiveData<Long> mRecipeId = new MutableLiveData<>();
+
+    // The actual chosen recipe
     private final MediatorLiveData<RecipeView> mChosenRecipe = new MediatorLiveData<>();
 
+    // Used as triggers for switchMap transformation
     private final MutableLiveData<Step> mStep = new MutableLiveData<>();
     private final MutableLiveData<Long> mStepId = new MutableLiveData<>();
+
+    // The actual chosen step
     private final MediatorLiveData<Step> mChosenStep = new MediatorLiveData<>();
 
     private final MutableLiveData<Boolean> mStepButtonClicked = new MutableLiveData<>();
@@ -57,6 +63,7 @@ public class BakingViewModel extends ViewModel {
         return mChosenRecipe;
     }
 
+    /* Only set once, since we don't want a refresh on orientation change */
     public void setChosenRecipe(Long recipeId) {
         if (mRecipeId.getValue() == null) {
             mRecipeId.setValue(recipeId);
@@ -93,6 +100,7 @@ public class BakingViewModel extends ViewModel {
                 Transformations.map(mChosenRecipe, (RecipeView recipe) -> {
                     int indexOf = recipe.mSteps.indexOf(step);
                     int numSteps = recipe.mSteps.size();
+
                     return StepDetails.newInstance(indexOf, numSteps, step.getVideoURL(),
                             step.getDescription());
                 }));
@@ -107,9 +115,11 @@ public class BakingViewModel extends ViewModel {
             int maxStepIndex = recipeView.mSteps.size() - 1;
 
             if (nextOrPrevious == NEXT && index < maxStepIndex) {
-                mStep.setValue(recipeView.mSteps.get(index + 1));
+                Step nextStep = recipeView.mSteps.get(index + 1);
+                mStep.setValue(nextStep);
             } else if (nextOrPrevious == PREVIOUS && index > 0) {
-                mStep.setValue(recipeView.mSteps.get(index - 1));
+                Step previousStep = recipeView.mSteps.get(index - 1);
+                mStep.setValue(previousStep);
             }
         }
     }

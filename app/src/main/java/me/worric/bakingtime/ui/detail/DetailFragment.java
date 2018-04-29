@@ -42,10 +42,8 @@ public class DetailFragment extends BaseFragment {
     private static final String EXTRA_SHOULD_START_PLAYING = "me.worric.bakingtime.extra_should_start_playing";
     private static final long START_OF_VIDEO = 0L;
 
-    @Inject
-    protected ExtractorMediaSource.Factory mMediaSourceFactory;
-    @Inject
-    protected FragmentManager mFragmentManager;
+    @Inject protected ExtractorMediaSource.Factory mMediaSourceFactory;
+    @Inject protected FragmentManager mFragmentManager;
     @Nullable @BindView(R.id.tv_detail_step_instructions)
     protected TextView mInstructions;
     @Nullable @BindView(R.id.btn_detail_previous)
@@ -71,7 +69,6 @@ public class DetailFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Timber.d("onCreate: called");
 
         if (savedInstanceState != null) {
             Timber.d("restoring instance state");
@@ -92,7 +89,6 @@ public class DetailFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Timber.d("OnViewCreated: called");
 
         if (isPhoneLandscapeMode()) {
             enterPlayerFullscreen();
@@ -100,47 +96,7 @@ public class DetailFragment extends BaseFragment {
 
         restoreNavButtonsAndInstructionTextState();
 
-        mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
-        mViewModel.getStepDetails().observe(this, stepDetails -> {
-            Timber.d("Observe method called");
-            if (stepDetails == null) return;
-
-            boolean isFirstRun = mStepDetails == null;
-
-            mStepDetails = stepDetails;
-
-            restoreNavButtonsAndInstructionTextState();
-
-            if (mExoPlayer == null) {
-                Timber.e("ExoPlayer is null - let initializePlayer() load media");
-                return;
-            }
-
-            if (mIsTabletMode) {
-                boolean clickEventIsNull = mViewModel.getStepButtonClicked().getValue() == null;
-                boolean stepButtonClicked =
-                        clickEventIsNull ? false : mViewModel.getStepButtonClicked().getValue();
-                Timber.d("First run: %s - stepButtonClicked: %s",
-                        isFirstRun, stepButtonClicked);
-                if (isFirstRun || stepButtonClicked) {
-                    Timber.i("Callback: Loading media...");
-                    loadMediaForPlayer(mStepDetails.stepUrl, START_OF_VIDEO);
-                    mViewModel.setStepButtonClicked(false);
-                } else {
-                    Timber.e("No conditions match - initializePlayer loads media");
-                }
-            } else {
-                Timber.d("First run: %s - navButtonClicked: %s",
-                        isFirstRun, mNavButtonClicked);
-                if (isFirstRun || mNavButtonClicked) {
-                    Timber.i("Callback: Loading media...");
-                    loadMediaForPlayer(mStepDetails.stepUrl, START_OF_VIDEO);
-                    mNavButtonClicked = false;
-                } else {
-                    Timber.e("No conditions match - initializePlayer loads media");
-                }
-            }
-        });
+        setupViewModel();
     }
 
     @Override
@@ -148,12 +104,6 @@ public class DetailFragment extends BaseFragment {
         super.onStart();
         Timber.d("onStart: called. Initializing Player");
         initializePlayer();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Timber.d("onResume: called.");
     }
 
     @Override
@@ -168,18 +118,6 @@ public class DetailFragment extends BaseFragment {
         super.onStop();
         Timber.d("onStop: called. Releasing player");
         releasePlayer();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Timber.d("onDestroyView: called");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Timber.d("onDestroy: called");
     }
 
     @Override
@@ -221,6 +159,42 @@ public class DetailFragment extends BaseFragment {
         enterPlayerFullscreen();
     }
 
+    private void setupViewModel() {
+        mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
+        mViewModel.getStepDetails().observe(this, stepDetails -> {
+            if (stepDetails == null) return;
+
+            boolean isFirstRun = mStepDetails == null;
+
+            mStepDetails = stepDetails;
+
+            restoreNavButtonsAndInstructionTextState();
+
+            if (mExoPlayer == null) {
+                Timber.e("ExoPlayer is null - let initializePlayer() load media");
+                return;
+            }
+
+            if (mTabletMode) {
+                boolean clickEventIsNull = mViewModel.getStepButtonClicked().getValue() == null;
+                boolean stepButtonClicked =
+                        clickEventIsNull ? false : mViewModel.getStepButtonClicked().getValue();
+
+                if (isFirstRun || stepButtonClicked) {
+                    Timber.i("Callback: Loading media...");
+                    loadMediaForPlayer(mStepDetails.stepUrl, START_OF_VIDEO);
+                    mViewModel.setStepButtonClicked(false);
+                }
+            } else {
+                if (isFirstRun || mNavButtonClicked) {
+                    Timber.i("Callback: Loading media...");
+                    loadMediaForPlayer(mStepDetails.stepUrl, START_OF_VIDEO);
+                    mNavButtonClicked = false;
+                }
+            }
+        });
+    }
+
     private void restoreNavButtonsAndInstructionTextState() {
         if (mStepDetails == null) return;
 
@@ -242,8 +216,11 @@ public class DetailFragment extends BaseFragment {
 
     private void loadMediaForPlayer(String videoUrl, long playerPosition) {
         Timber.d("Video URL is: %s", videoUrl);
+
         Uri videoUri = TextUtils.isEmpty(videoUrl) ? null : Uri.parse(videoUrl);
+
         MediaSource mediaSource = mMediaSourceFactory.createMediaSource(videoUri, null, null);
+
         mExoPlayer.prepare(mediaSource);
         mExoPlayer.setPlayWhenReady(mShouldStartPlaying);
         if (playerPosition != START_OF_VIDEO) mExoPlayer.seekTo(playerPosition);

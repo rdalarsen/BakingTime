@@ -19,7 +19,7 @@ public class BakingWidgetProvider extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
-        Timber.e("Updating widget with ID of: %d", appWidgetId);
+        Timber.i("Updating widget with ID of: %d", appWidgetId);
 
         Intent remoteServiceIntent = new Intent(context, BakingRemoteViewsService.class);
         remoteServiceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
@@ -53,7 +53,6 @@ public class BakingWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
-            Timber.d("Deleting widget with ID: %d", appWidgetId);
             WidgetConfigActivity.deleteIdAndName(context, appWidgetId);
         }
     }

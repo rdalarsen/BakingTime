@@ -66,9 +66,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         final boolean tabletMode = getResources().getBoolean(R.bool.tablet_mode);
+
         if (tabletMode) {
-            mRecipeList.setLayoutManager(new GridLayoutManager(this,
-                    UiUtils.calculateSpanCount(this)));
+            int gridLayoutSpanCount = UiUtils.calculateSpanCount(this);
+            mRecipeList.setLayoutManager(new GridLayoutManager(this, gridLayoutSpanCount));
         } else {
             mRecipeList.setLayoutManager(new LinearLayoutManager(this,
                     LinearLayoutManager.VERTICAL, false));
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void restoreLayoutManagerState(final Bundle savedInstanceState) {
         if (savedInstanceState == null) return;
+
         Parcelable savedLayoutManagerState = savedInstanceState
                 .getParcelable(EXTRA_LAYOUT_MANAGER_STATE);
         mRecipeList.getLayoutManager().onRestoreInstanceState(savedLayoutManagerState);

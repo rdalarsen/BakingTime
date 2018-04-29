@@ -25,16 +25,16 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
 
     private static final int INVALID_STEP_INDEX = -1;
 
-    private final boolean mIsTabletMode;
+    private final boolean mTabletMode;
     private final MasterFragment.StepClickListener mListener;
     @ColorInt private final int mHighlightColor;
     @ColorInt private final int mRestoreColor;
     private List<Step> mSteps;
     private StepDetails mStepDetails;
 
-    StepsAdapter(MasterFragment.StepClickListener listener, boolean isTabletMode, Context context) {
+    StepsAdapter(boolean tabletMode, Context context, MasterFragment.StepClickListener listener) {
+        mTabletMode = tabletMode;
         mListener = listener;
-        mIsTabletMode = isTabletMode;
         mHighlightColor = ContextCompat.getColor(context, R.color.colorAccent_100);
         mRestoreColor = ContextCompat.getColor(context, android.R.color.transparent);
     }
@@ -44,6 +44,10 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         notifyDataSetChanged();
     }
 
+    /*
+    * Set chosen step and mark it as changed as well as the previously chosen step in order to
+    * change background color on them both
+    */
     public void setCurrentStep(StepDetails stepDetails) {
         int oldStepIndex = mStepDetails == null ? INVALID_STEP_INDEX : mStepDetails.stepIndex;
         mStepDetails = stepDetails;
@@ -69,15 +73,18 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         holder.mShortDesc.setText(step.getShortDescription());
         holder.itemView.setOnClickListener(v -> mListener.onStepClick(step));
 
-        if (mIsTabletMode && mStepDetails != null) {
-            if (position == mStepDetails.stepIndex) {
+        if (mStepDetails == null) return;
+
+        if (mTabletMode) {
+            int indexOfChosenStep = mStepDetails.stepIndex;
+            if (position == indexOfChosenStep) {
                 holder.itemView.setBackgroundColor(mHighlightColor);
                 loadWithGlide(R.drawable.ic_cake_error_white, holder, step);
             } else {
                 holder.itemView.setBackgroundColor(mRestoreColor);
                 loadWithGlide(R.drawable.ic_cake_error, holder, step);
             }
-        } else if (!mIsTabletMode) {
+        } else {
             loadWithGlide(R.drawable.ic_cake_error, holder, step);
         }
     }

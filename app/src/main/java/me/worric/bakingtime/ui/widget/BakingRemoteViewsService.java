@@ -14,7 +14,6 @@ import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.data.models.Ingredient;
 import me.worric.bakingtime.data.repository.Repository;
 import me.worric.bakingtime.ui.detail.DetailActivity;
-import timber.log.Timber;
 
 @SuppressWarnings("WeakerAccess")
 public class BakingRemoteViewsService extends RemoteViewsService {
@@ -50,8 +49,6 @@ public class BakingRemoteViewsService extends RemoteViewsService {
 
         @Override
         public void onDataSetChanged() {
-            Timber.e("onDataSetChanged: called. Repository hashCode: %d",
-                    mRepository.hashCode());
             mRecipeView = mRepository.findRecipeByIdSync(mRecipeId);
         }
 
@@ -74,14 +71,10 @@ public class BakingRemoteViewsService extends RemoteViewsService {
         }
 
         @Override
-        public void onCreate() {
-            Timber.d("OnCreate: called");
-        }
+        public void onCreate() {}
 
         @Override
-        public void onDestroy() {
-            Timber.d("onDestroy: called");
-        }
+        public void onDestroy() {}
 
         @Override
         public int getCount() {

@@ -31,11 +31,8 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
     public static final String EXTRA_RECIPE_ID = "me.worric.bakingtime.extra_recipe_id";
     private static final long INVALID_RECIPE_ID = -1L;
 
-    @Inject
-    protected ViewModelProvider.Factory mFactory;
-
-    @Inject
-    DispatchingAndroidInjector<Fragment> fragmentInjector;
+    @Inject protected ViewModelProvider.Factory mFactory;
+    @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
 
     private boolean mTabletMode;
     private BakingViewModel mViewModel;
@@ -49,32 +46,16 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
 
         mTabletMode = getResources().getBoolean(R.bool.tablet_mode);
 
-        Long recipeId = getIntent().getLongExtra(EXTRA_RECIPE_ID, INVALID_RECIPE_ID);
-        mViewModel = ViewModelProviders.of(this, mFactory)
-                .get(BakingViewModel.class);
-        mViewModel.getChosenRecipe().observe(this, recipeView -> {
-            if (recipeView != null && getSupportActionBar() != null) getSupportActionBar()
-                    .setTitle(recipeView.mRecipe.getName());
-        });
+        Long recipeId = getRecipeExtraFromIntent();
+
+        setupViewModel();
+
         Timber.i("Setting chosen recipe with ID: %d", recipeId);
         mViewModel.setChosenRecipe(recipeId);
 
-        // If app process has been killed in the background, we should restore ViewModel
-        if (savedInstanceState != null) {
-            if (mViewModel.getStep().getValue() == null) {
-                Long stepId = savedInstanceState.getLong(EXTRA_STEP_ID, INVALID_STEP_ID);
-                Timber.i("Step ID: %d, %s restoring chosen step!", stepId, stepId == INVALID_STEP_ID ? "NOT" : "");
-                if (stepId != INVALID_STEP_ID) {
-                    mViewModel.setStep(stepId);
-                }
-            }
-        }
+        restoreRecipeInViewModel(savedInstanceState);
 
-        if (savedInstanceState == null && !mTabletMode) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.detail_fragment_container, new MasterFragment())
-                    .commit();
-        }
+        addFragmentInPhoneMode(savedInstanceState);
     }
 
     @Override
@@ -84,15 +65,14 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
         if (step != null) outState.putLong(EXTRA_STEP_ID, step.getId());
     }
 
-    @Override
-    public AndroidInjector<Fragment> supportFragmentInjector() {
-        return fragmentInjector;
-    }
+    // Helper/callback methods
 
-    public static Intent newIntent(@NonNull Context context, @NonNull Long recipeId) {
-        Intent intent = new Intent(context, DetailActivity.class);
-        intent.putExtra(EXTRA_RECIPE_ID, recipeId);
-        return intent;
+    private void addFragmentInPhoneMode(Bundle savedInstanceState) {
+        if (savedInstanceState == null && !mTabletMode) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.detail_fragment_container, new MasterFragment())
+                    .commit();
+        }
     }
 
     @Override
@@ -103,6 +83,50 @@ public class DetailActivity extends AppCompatActivity implements HasSupportFragm
                     .addToBackStack(null)
                     .commit();
         }
+    }
+
+    /*
+    * If app process has been killed in the background, we should restore the chosen recipe
+    * in the ViewModel
+    */
+    private void restoreRecipeInViewModel(Bundle savedInstanceState) {
+        if (savedInstanceState == null) return;
+
+        if (mViewModel.getStep().getValue() == null) {
+            Long stepId = savedInstanceState.getLong(EXTRA_STEP_ID, INVALID_STEP_ID);
+
+            Timber.i("Step ID: %d, %s restoring chosen step!", stepId,
+                    stepId == INVALID_STEP_ID ? "NOT" : "");
+
+            if (stepId != INVALID_STEP_ID) {
+                mViewModel.setStep(stepId);
+            }
+        }
+    }
+
+    private void setupViewModel() {
+        mViewModel = ViewModelProviders.of(this, mFactory).get(BakingViewModel.class);
+        mViewModel.getChosenRecipe().observe(this, recipeView -> {
+            if (recipeView != null && getSupportActionBar() != null) getSupportActionBar()
+                    .setTitle(recipeView.mRecipe.getName());
+        });
+    }
+
+    private long getRecipeExtraFromIntent() {
+        return getIntent().getLongExtra(EXTRA_RECIPE_ID, INVALID_RECIPE_ID);
+    }
+
+    public static Intent newIntent(@NonNull Context context, @NonNull Long recipeId) {
+        Intent intent = new Intent(context, DetailActivity.class);
+        intent.putExtra(EXTRA_RECIPE_ID, recipeId);
+        return intent;
+    }
+
+    // Other
+
+    @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return fragmentInjector;
     }
 
     @VisibleForTesting

@@ -15,6 +15,7 @@ import android.widget.Button;
 import butterknife.BindView;
 import butterknife.OnClick;
 import me.worric.bakingtime.R;
+import me.worric.bakingtime.data.db.models.RecipeView;
 import me.worric.bakingtime.data.models.Step;
 import me.worric.bakingtime.ui.common.BaseFragment;
 import me.worric.bakingtime.ui.viewmodels.BakingViewModel;
@@ -26,7 +27,7 @@ public class MasterFragment extends BaseFragment {
     private static final String EXTRA_SHOW_INGREDIENTS = "me.worric.bakingtime.extra_show_ingredients";
     private static final String EXTRA_STEPS_LIST_STATE = "me.worric.bakingtime.extra_steps_list_state";
     private static final String EXTRA_INGREDIENTS_LIST_STATE = "me.worric.bakingtime.extra_ingredients_list_state";
-    public static final String EXTRA_IS_FIRST_RUN = "me.worric.bakingtime.extra_is_first_run";
+    private static final String EXTRA_IS_FIRST_RUN = "me.worric.bakingtime.extra_is_first_run";
 
     @BindView(R.id.rv_master_fragment_steps) protected RecyclerView mContentList;
     @BindView(R.id.btn_detail_swap_steps_ingredients) protected Button mToggleContentButton;
@@ -58,7 +59,6 @@ public class MasterFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Timber.d("onCreate: called");
 
         if (savedInstanceState != null) {
             mIsShowingIngredients = savedInstanceState.getBoolean(EXTRA_SHOW_INGREDIENTS, false);
@@ -71,7 +71,6 @@ public class MasterFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Timber.d("OnViewCreated: called");
 
         updateButtonText();
 
@@ -153,13 +152,7 @@ public class MasterFragment extends BaseFragment {
         mContentList.addItemDecoration(new DividerItemDecoration(getContext(),
                 DividerItemDecoration.VERTICAL));
 
-        mIngredientsAdapter = new IngredientsAdapter();
-        mStepsAdapter = new StepsAdapter((step) -> {
-            mViewModel.setStepButtonClicked(true);
-            mViewModel.setStep(step);
-            mStepListState = mManager.onSaveInstanceState();
-            mListener.onStepClick(step);
-        }, mIsTabletMode, getContext());
+        initAdapters();
 
         if (mIsShowingIngredients) {
             mContentList.setAdapter(mIngredientsAdapter);
@@ -168,33 +161,55 @@ public class MasterFragment extends BaseFragment {
         }
     }
 
+    private void initAdapters() {
+        mIngredientsAdapter = new IngredientsAdapter();
+
+        mStepsAdapter = new StepsAdapter(mTabletMode, getContext(), (step) -> {
+            mViewModel.setStepButtonClicked(true);
+            mViewModel.setStep(step);
+            mStepListState = mManager.onSaveInstanceState();
+            mListener.onStepClick(step);
+        });
+    }
+
     private void setupViewModel() {
         mViewModel = ViewModelProviders.of(getActivity(), mFactory).get(BakingViewModel.class);
+
+        // Observe chosen recipe to update lists with steps and ingredients
         mViewModel.getChosenRecipe().observe(this, recipeView -> {
-            Timber.d("calling observe method");
             if (recipeView == null) return;
 
             mStepsAdapter.swapSteps(recipeView.mSteps);
             mIngredientsAdapter.swapIngredients(recipeView.mIngredients);
 
-            if (mIsShowingIngredients) {
-                if (mIngredientsListState != null) mManager.onRestoreInstanceState(mIngredientsListState);
-            } else {
-                if (mStepListState != null) mManager.onRestoreInstanceState(mStepListState);
-            }
+            restoreRecyclerViewState();
 
-            // If we're in tablet mode on the first run, load the first step of the recipe automatically
-            if (mIsTabletMode && mIsFirstRun) {
-                Timber.i("Setting chosen step on first run in tablet mode");
-                mViewModel.setStep(recipeView.mSteps.get(0));
-                mIsFirstRun = false;
-            }
+            autoPlayFirstStepOnFirstRunInTabletMode(recipeView);
         });
+
+        // Observe chosen step to mark it with a background color in steps list
         mViewModel.getStepDetails().observe(this, stepDetails -> {
-            if (stepDetails == null || mStepsAdapter == null) return;
-
-            mStepsAdapter.setCurrentStep(stepDetails);
+            if (stepDetails != null) mStepsAdapter.setCurrentStep(stepDetails);
         });
+    }
+
+    private void restoreRecyclerViewState() {
+        if (mIsShowingIngredients) {
+            if (mIngredientsListState != null) mManager.onRestoreInstanceState(mIngredientsListState);
+        } else {
+            if (mStepListState != null) mManager.onRestoreInstanceState(mStepListState);
+        }
+    }
+
+    /*
+    * If we're in tablet mode on the first run, load the first step of the recipe automatically
+    */
+    private void autoPlayFirstStepOnFirstRunInTabletMode(RecipeView recipeView) {
+        if (mTabletMode && mIsFirstRun) {
+            Timber.i("Setting chosen step on first run in tablet mode");
+            mViewModel.setStep(recipeView.mSteps.get(0));
+            mIsFirstRun = false;
+        }
     }
 
     // Base class methods
