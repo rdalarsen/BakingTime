@@ -13,7 +13,7 @@
     <Button
         android:id="@+id/btn_detail_back"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="?android:listPreferredItemHeight"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -47,7 +47,7 @@
     <Button
         android:id="@+id/btn_detail_next"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="?android:listPreferredItemHeight"
         app:layout_constraintStart_toEndOf="@+id/btn_detail_previous"
         app:layout_constraintEnd_toEndOf="@+id/detail_exoplayer"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -57,7 +57,7 @@
     <Button
         android:id="@+id/btn_detail_previous"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="?android:listPreferredItemHeight"
         app:layout_constraintStart_toStartOf="@+id/detail_exoplayer"
         app:layout_constraintEnd_toStartOf="@+id/btn_detail_next"
         app:layout_constraintBottom_toBottomOf="parent"

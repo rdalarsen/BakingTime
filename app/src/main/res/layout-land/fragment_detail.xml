@@ -13,7 +13,7 @@
         <Button
             android:id="@+id/btn_detail_back"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="?android:listPreferredItemHeight"
             android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:text="@string/detail_frag_btn_back" />
@@ -21,7 +21,7 @@
         <Button
             android:id="@+id/btn_detail_enter_fullscreen"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="?android:listPreferredItemHeight"
             android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:text="@string/master_frag_btn_enter_fullscreen" />
