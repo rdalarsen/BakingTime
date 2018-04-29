@@ -2,20 +2,11 @@ package me.worric.bakingtime.ui.detail;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.constraint.ConstraintLayout;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
-import android.support.test.espresso.intent.Checks;
-import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.content.ContextCompat;
-import android.view.View;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +15,6 @@ import org.junit.runner.RunWith;
 
 import me.worric.bakingtime.R;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
@@ -36,6 +26,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withChild;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static me.worric.bakingtime.ui.TestUtils.withBackgroundColor;
 import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
@@ -45,7 +36,7 @@ public class DetailActivityTest {
     private static final String INSTRUCTION_INTRO_TEXT = "Recipe Introduction";
     private static final String STEP_3_INSTRUCTIONS =
             "3. Press the cookie crumb mixture into the prepared pie pan and bake for 12 minutes. Let crust cool to room temperature.";
-    private static final int TARGET_COLOR = R.color.colorAccent;
+    private static final int TARGET_COLOR = R.color.colorAccent_100;
     private static final String STEP_ENTRY_0 = "Step 0";
     private static final String STEP_ENTRY_3 = "Step 3";
     private static final int FIRST_POSITION = 0;
@@ -196,28 +187,6 @@ public class DetailActivityTest {
 
         onView(withId(R.id.btn_detail_previous))
                 .check(matches(isEnabled()));
-    }
-
-    /*
-    * Custom matcher; adapted from: https://stackoverflow.com/a/47143659
-    */
-    public static Matcher<View> withBackgroundColor(final int color) {
-        Checks.checkNotNull(color);
-        return new BoundedMatcher<View, ConstraintLayout>(ConstraintLayout.class) {
-            @Override
-            public boolean matchesSafely(ConstraintLayout layout) {
-                Drawable background = layout.getBackground();
-                if (background instanceof ColorDrawable) {
-                    ColorDrawable colorDrawable = (ColorDrawable) background;
-                    return ContextCompat.getColor(getTargetContext(),color) == colorDrawable.getColor();
-                }
-                return false;
-            }
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("with background color: ");
-            }
-        };
     }
 
 }

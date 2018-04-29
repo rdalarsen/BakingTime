@@ -23,17 +23,19 @@ import me.worric.bakingtime.ui.GlideApp;
 
 public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHolder> {
 
+    private static final int INVALID_STEP_INDEX = -1;
+
     private final boolean mIsTabletMode;
     private final MasterFragment.StepClickListener mListener;
-    private List<Step> mSteps;
-    private StepDetails mStepDetails;
     @ColorInt private final int mHighlightColor;
     @ColorInt private final int mRestoreColor;
+    private List<Step> mSteps;
+    private StepDetails mStepDetails;
 
     StepsAdapter(MasterFragment.StepClickListener listener, boolean isTabletMode, Context context) {
         mListener = listener;
         mIsTabletMode = isTabletMode;
-        mHighlightColor = ContextCompat.getColor(context, R.color.colorAccent);
+        mHighlightColor = ContextCompat.getColor(context, R.color.colorAccent_100);
         mRestoreColor = ContextCompat.getColor(context, android.R.color.transparent);
     }
 
@@ -43,10 +45,10 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
     }
 
     public void setCurrentStep(StepDetails stepDetails) {
-        int oldStepIndex = mStepDetails == null ? -1 : mStepDetails.stepIndex;
+        int oldStepIndex = mStepDetails == null ? INVALID_STEP_INDEX : mStepDetails.stepIndex;
         mStepDetails = stepDetails;
         notifyItemChanged(mStepDetails.stepIndex);
-        if (oldStepIndex != -1) notifyItemChanged(oldStepIndex);
+        if (oldStepIndex != INVALID_STEP_INDEX) notifyItemChanged(oldStepIndex);
     }
 
     @NonNull

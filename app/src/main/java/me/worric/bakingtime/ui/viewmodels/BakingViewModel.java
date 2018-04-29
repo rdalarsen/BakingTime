@@ -29,6 +29,7 @@ public class BakingViewModel extends ViewModel {
     private final MutableLiveData<Step> mStep = new MutableLiveData<>();
     private final MutableLiveData<Long> mStepId = new MutableLiveData<>();
     private final MediatorLiveData<Step> mChosenStep = new MediatorLiveData<>();
+
     private final MutableLiveData<Boolean> mStepButtonClicked = new MutableLiveData<>();
 
     private final Repository mRecipeRepository;

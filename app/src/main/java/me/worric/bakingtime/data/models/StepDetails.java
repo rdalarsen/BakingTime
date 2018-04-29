@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Immutable data model class specific to the DetailsFragment
+ * Immutable, parcelable data model class specific to the DetailsFragment
  */
 public class StepDetails implements Parcelable {
 

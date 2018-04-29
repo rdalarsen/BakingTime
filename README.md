@@ -41,4 +41,4 @@ Aside from the core project requirements set forth by Udacity, this project stan
 - How to write custom matcher for testing background color of a view from [this SO answer](https://stackoverflow.com/a/47143659) (adapted)
 - Targeting individual tests for phone and tablet respectively from [this article](https://medium.com/@aitorvs/espresso-do-not-assume-just-annotate-9066cb77106e)
 - Commit messages format and content from [this guide](http://udacity.github.io/git-styleguide/)
-
+- How to make ExoPlayer fullscreen from [this article](https://geoffledak.com/blog/2017/09/11/how-to-add-a-fullscreen-toggle-button-to-exoplayer-in-android/)
