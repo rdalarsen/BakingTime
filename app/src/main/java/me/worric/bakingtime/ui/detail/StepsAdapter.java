@@ -73,9 +73,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepsViewHol
         holder.mShortDesc.setText(step.getShortDescription());
         holder.itemView.setOnClickListener(v -> mListener.onStepClick(step));
 
-        if (mStepDetails == null) return;
-
-        if (mTabletMode) {
+        if (mTabletMode && mStepDetails != null) {
             int indexOfChosenStep = mStepDetails.stepIndex;
             if (position == indexOfChosenStep) {
                 holder.itemView.setBackgroundColor(mHighlightColor);
